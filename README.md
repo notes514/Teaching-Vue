@@ -1,7 +1,7 @@
 # Teaching-Vue
 基于SprinigBoot+Jwt+Vue的前后端分离的教学管理系统
 
-2021年6月10日项目完成进度（前端Vue）
+2021年6月10日前端(Vue)
 
 1.安装element-ui
 
@@ -23,7 +23,7 @@ cnpm install axios --save
 
 import axios from 'axios'
 
-Vue.prototype.$axios = axios 
+Vue.prototype.$axios = axios
 
 cnpm install qs --save
 
@@ -46,3 +46,12 @@ Index.vue
 6.实现动态菜单栏开发
 
 router/index.js、store/index.js、store/modules/menus.js、includ/SideMenu.vue ...
+
+2021年6月11日前端(Vue)
+
+1.实现动态标签页切换显示
+
+Tabs.vue
+
+2.实现个人中心、菜单管理、角色管理、用户管理页以及按钮权限控制等
+PersonalCenter.vue、UserInfo.vue、ResetPwd.vue、Menu.vue ...

@@ -10,7 +10,12 @@ export default {
         // 权限数据
         authoritys: [],
         //
-        hasRoute: false
+        hasRoute: false,
+        editableTabsValue: 'Index',
+        editableTabs: [{
+            title: '首页',
+            name: 'Index',
+        }]
     },
     mutations: {
         setMenuList(state, menus) {
@@ -24,6 +29,29 @@ export default {
         changeRouteStatus(state, hasRoutes) {
             state.hasRoutes = hasRoutes
         },
+
+        addTab(state, tab) {
+            // 获取index，防止tabs重复添加
+            let index = state.editableTabs.findIndex(e => e.name === tab.name);
+            if (index === -1) {
+                state.editableTabs.push({
+                    title: tab.title,
+                    name: tab.name,
+                });
+            }
+            state.editableTabsValue = tab.name;
+        },
+
+        resetState: (state) => {
+            state.menuList = [];
+            state.permList = [];
+            state.hasRoutes = false;
+            state.editableTabsValue = 'Index';
+            state.editableTabs = [{
+                title: '首页',
+                name: 'Index',
+            }];
+        }
     },
     actions: {
     },

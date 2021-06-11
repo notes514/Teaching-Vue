@@ -17,33 +17,19 @@ const routes = [
       {
         path: '/index',
         name: 'Index',
+        meta: {
+          title: "首页"
+        },
         component: Index
       },
       {
         path: '/user/profile',
         name: 'PersonalCenter',
+        meta: {
+          title: "个人中心"
+        },
         component: () => import('../views/system/user/profile/PersonalCenter.vue')
-      },
-      // {
-      //   path: '/system/user',
-      //   name: 'User',
-      //   component: () => import('../views/system/user/User.vue')
-      // },
-      // {
-      //   path: '/system/role',
-      //   name: 'Role',
-      //   component: () => import('../views/ststem/role/Role.vue')
-      // },
-      // {
-      //   path: '/system/menu',
-      //   name: 'Menu',
-      //   component: () => import('../views/ststem/menu/Menu.vue')
-      // },
-      // {
-      //   path: '/system/dict',
-      //   name: 'Dict',
-      //   component: () => import('../views/ststem/dict/Dict.vue')
-      // },
+      }
     ]
   },
   {

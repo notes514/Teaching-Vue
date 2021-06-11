@@ -55,3 +55,19 @@ Tabs.vue
 
 2.实现个人中心、菜单管理、角色管理、用户管理页以及按钮权限控制等
 PersonalCenter.vue、UserInfo.vue、ResetPwd.vue、Menu.vue ...
+
+2021年6月11日后端(Java)
+
+1.整合Mybatis Plus，生成代码
+
+2.导入jar包
+
+3.编写配置文件，开启mapper接口扫描，添加分页、防全表更新插件
+
+4.创建数据库表，生成代码
+
+
+
+
+
+

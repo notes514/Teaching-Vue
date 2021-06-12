@@ -10,13 +10,13 @@ import java.io.Serializable;
  * @date 2021/6/5 22:06
  */
 @Data
-public class BaseResult<T> implements Serializable {
+public class BaseResult implements Serializable {
     /** 200表示请求成功，反之表示请求异常 */
     private Integer code;
     /** 成功或失败的提示信息 */
     private String msg;
     /** 数据集 */
-    private T data;
+    private Object data;
 
     /**
      * @Description 请求成功的方法（单参数）
@@ -25,7 +25,7 @@ public class BaseResult<T> implements Serializable {
      * @param data 数据
      * @return com.laodai.vueblogstudy.common.lang.BaseResult
      */
-    public static <T> BaseResult success(T data) {
+    public static BaseResult success(Object data) {
         return success(200, "操作成功！", data);
     }
 
@@ -38,7 +38,7 @@ public class BaseResult<T> implements Serializable {
      * @param data 数据
      * @return com.laodai.vueblogstudy.common.lang.BaseResult
      */
-    public static <T> BaseResult success(Integer code, String msg, T data) {
+    public static BaseResult success(Integer code, String msg, Object data) {
         BaseResult result = new BaseResult();
         result.setCode(code);
         result.setMsg(msg);
@@ -70,7 +70,7 @@ public class BaseResult<T> implements Serializable {
      * @param data 泛型结果集
      * @return com.laodai.vueblogstudy.common.lang.BaseResult
      */
-    public static <T> BaseResult failure(Integer code, String msg, T data) {
+    public static BaseResult failure(Integer code, String msg, Object data) {
         BaseResult result = new BaseResult();
         result.setCode(code);
         result.setMsg(msg);

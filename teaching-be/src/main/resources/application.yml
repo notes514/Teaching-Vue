@@ -5,7 +5,19 @@ spring:
     url: jdbc:mysql://localhost:3306/db_teaching?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: root
     password: root
+  # security
+  security:
+    user:
+      name: user
+      password: 123456
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**Mapper.xml
 server:
-  port: 8099
+  port: 8081
+guidian:
+  jwt:
+    # 加密秘钥
+    secret: f4e2e52034348f86b67cde581c0f9eb5
+    # token有效时长，7天，单位秒
+    expire: 604800
+    header: Authorization

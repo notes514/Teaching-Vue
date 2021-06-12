@@ -14,7 +14,7 @@ Vue.config.productionTip = false
 Vue.prototype.$axios = axios
 Vue.use(VueCropper)
 
-require("./mock.js")
+// require("./mock.js")
 
 Vue.use(Element)
 

@@ -4,13 +4,13 @@ import Element from 'element-ui'
 import store from './store'
 
 // 配置baseURL
-// axios.defaults.baseURL = 'http://localhost:8081';
+axios.defaults.baseURL = 'http://localhost:8081';
 
 // 创建axios对象，设置超时时间为5000，请求头返回json
 const request = axios.create({
     timeout: 5000,
     headers: {
-        'Content-Type': 'application/json; charset=utf-8'
+        'Content-Type': 'application/json;charset=utf-8'
     }
 });
 

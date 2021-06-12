@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import qs from "qs";
 export default {
   name: "Login",
   data() {
@@ -42,7 +43,7 @@ export default {
       loginForm: {
         username: 'notes_514',
         password: '123456',
-        code: '11111',
+        code: '',
         token: '',
         rememberMe: false
       },
@@ -87,10 +88,10 @@ export default {
 
     /** 获取验证码 */
     getCaptcha() {
-      const _this = this;
       this.$axios.get("/captcha").then(res => {
-        _this.loginForm.token = res.data.data.token;
-        _this.captchaImg = res.data.data.captchaImg;
+        this.loginForm.token = res.data.data.token;
+        this.captchaImg = res.data.data.captchaImg;
+        this.loginForm.code = '';
       });
     }
   },

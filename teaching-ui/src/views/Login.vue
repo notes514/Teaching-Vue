@@ -68,7 +68,7 @@ export default {
     submitForm(loginForm) {
       this.$refs[loginForm].validate((valid) => {
         if (valid) {
-          this.$axios.post('/login').then(res => {
+          this.$axios.post('/login?' + qs.stringify(this.loginForm)).then(res => {
             console.log(res.data)
             const jwt = res.headers['authorization']
             // 将jwt存储到应用store中

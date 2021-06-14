@@ -66,8 +66,23 @@ PersonalCenter.vue、UserInfo.vue、ResetPwd.vue、Menu.vue ...
 
 4.创建数据库表，生成代码
 
+2021年6月12日后端(Java)
 
+1.引入Security与Jwt
 
+2.实现用户认证、生成验证码以及验证码认证过滤器
+
+KaptchaConfig、RedisConfig、SecurityConfig、CaptchaFilter、LoginSuccessHandler ...
+
+3.解决跨域问题
+
+CorsConfig
+
+2021年6月14日后端(Java)
+
+1.解决用户身份认证
+
+2.实现密码加密，解决登录过程账户密码从数据库获取问题
 
 
 

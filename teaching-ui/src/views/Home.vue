@@ -44,9 +44,11 @@ export default {
   data() {
     return {
       userInfo: {
-        id: '',
+        userId: '',
         username: '',
-        avatar: ''
+        avatar: '',
+        created: '',
+        updated: ''
       }
     }
   },
@@ -58,7 +60,7 @@ export default {
      * 获取用户信息
      */
     getUserInfo() {
-      this.$axios.get("/system/userInfo").then(res => {
+      this.$axios.get("/user/userInfo").then(res => {
         this.userInfo = res.data.data;
       });
     },

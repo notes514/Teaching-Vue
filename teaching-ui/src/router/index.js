@@ -55,8 +55,8 @@ router.beforeEach((to, from, next) => {
         Authorization : localStorage.getItem("token")
       }
     }).then(res => {
-      console.log("res.data.data");
-      console.log(res.data.data);
+      console.log("res.data.data.nav");
+      console.log(res.data.data.nav);
       // 获取menuList
       store.commit("setMenuList", res.data.data.nav);
       // 获取用户权限

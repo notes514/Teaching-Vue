@@ -5,12 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.guidian.teaching.service.*;
 import com.guidian.teaching.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.ServletRequestUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
-
 /**
  * @Description 基类控制处理器
  * @author dhxstart
@@ -23,6 +22,8 @@ public class BaseController {
     public HttpServletResponse response;
     @Autowired
     public RedisUtils redisUtils;
+    @Autowired
+    public BCryptPasswordEncoder bCryptPasswordEncoder;
     @Autowired
     public UserService userService;
     @Autowired
@@ -37,6 +38,8 @@ public class BaseController {
     public StudentService studentService;
     @Autowired
     public CourseService courseService;
+    @Autowired
+    public StudentCourseService studentCourseService;
 
     /**
      * @Description 获取分页页面

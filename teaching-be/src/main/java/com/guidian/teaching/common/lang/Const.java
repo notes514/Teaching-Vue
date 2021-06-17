@@ -12,4 +12,8 @@ public class Const {
     public static final String LOGIN_URL = "/login";
     /** POST请求方式 */
     public static final String METHOD_POST = "POST";
+    /** 默认密码 */
+    public static final String DEFAULT_PASSWORD = "123456";
+    /** 用户默认url地址 */
+    public static final String AVATAR_URL = "https://image-1300566513.cos.ap-guangzhou.myqcloud.com/upload/images/5a9f48118166308daba8b6da7e466aab.jpg";
 }

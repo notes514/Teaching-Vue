@@ -11,7 +11,7 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button @click="getClbumList">搜索</el-button>
+        <el-button @click="getStudentList">搜索</el-button>
       </el-form-item>
 
       <el-form-item>
@@ -40,24 +40,40 @@
           width="55">
       </el-table-column>
       <el-table-column
+          prop="studentId"
+          label="学号"
+          width="140">
+      </el-table-column>
+      <el-table-column
+          prop="studentName"
+          label="姓名"
+          width="80">
+      </el-table-column>
+      <el-table-column
+          prop="gender"
+          label="性别"
+          width="60">
+      </el-table-column>
+      <el-table-column
+          prop="birthday"
+          label="出生日期"
+          width="120"
+          :formatter="dateFormatter">
+      </el-table-column>
+      <el-table-column
+          prop="nationality"
+          label="民族"
+          width="60">
+      </el-table-column>
+      <el-table-column
+          prop="studentPhone"
+          label="学生电话"
+          width="140">
+      </el-table-column>
+      <el-table-column
           prop="clbumId"
           label="班级编号"
           width="140">
-      </el-table-column>
-      <el-table-column
-          prop="clbumName"
-          label="班级名称"
-          width="160">
-      </el-table-column>
-      <el-table-column
-          prop="professionId"
-          label="所属专业编号"
-          width="140">
-      </el-table-column>
-      <el-table-column
-          prop="clbumCounselor"
-          label="班级辅导员"
-          width="160">
       </el-table-column>
       <el-table-column
           prop="createTime"
@@ -65,18 +81,13 @@
           width="180">
       </el-table-column>
       <el-table-column
-          prop="officePhone"
-          label="办公室电话"
-          width="160">
-      </el-table-column>
-      <el-table-column
           prop="icon"
           label="操作">
         <template slot-scope="scope">
-          <el-button type="text" @click="editHandle(scope.row.clbumId)">编辑</el-button>
+          <el-button type="text" @click="editHandle(scope.row.studentId)">编辑</el-button>
           <el-divider direction="vertical"></el-divider>
           <template>
-            <el-popconfirm title="确定要删除吗？" @confirm="delHandle(scope.row.clbumId)">
+            <el-popconfirm title="确定要删除吗？" @confirm="delHandle(scope.row.studentId)">
               <el-button type="text" slot="reference">删除</el-button>
             </el-popconfirm>
           </template>
@@ -101,25 +112,37 @@
         :visible.sync="dialogVisible"
         width="600px"
         :before-close="handleClose">
-      <el-form :model="clbumForm" :rules="clbumFormRules" ref="clbumForm" label-width="100px" class="demo-editForm">
+      <el-form :model="studentForm" :rules="studentFormRules" ref="studentForm" label-width="100px" class="demo-editForm">
+        <el-form-item label="学号" prop="studentId" label-width="120px">
+          <el-input v-model="studentForm.studentId" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="学生姓名" prop="studentName" label-width="120px">
+          <el-input v-model="studentForm.studentName" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="性别" prop="gender" label-width="120px">
+          <el-input v-model="studentForm.gender" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="出生日期" prop="birthday" label-width="120px">
+          <el-date-picker
+              v-model="studentForm.birthday"
+              type="date"
+              format="yyyy-MM-dd"
+              size="large"
+              placeholder="选择日期时间">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="民族" prop="nationality" label-width="120px">
+          <el-input v-model="studentForm.nationality" autocomplete="off"></el-input>
+        </el-form-item>
         <el-form-item label="班级编号" prop="clbumId" label-width="120px">
-          <el-input v-model="clbumForm.clbumId" autocomplete="off"></el-input>
+          <el-input v-model="studentForm.clbumId" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="班级名称" prop="clbumName" label-width="120px">
-          <el-input v-model="clbumForm.clbumName" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="所属专业编号" prop="professionId" label-width="120px">
-          <el-input v-model="clbumForm.professionId" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="班级辅导员" prop="clbumCounselor" label-width="120px">
-          <el-input v-model="clbumForm.clbumCounselor" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="办公室电话" prop="officePhone" label-width="120px">
-          <el-input v-model="clbumForm.officePhone" autocomplete="off"></el-input>
+        <el-form-item label="学生电话" prop="studentPhone" label-width="120px">
+          <el-input v-model="studentForm.studentPhone" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitForm('clbumForm')">{{ this.flag ? '保存' : '创建' }}</el-button>
-          <el-button @click="resetForm('clbumForm')">重置</el-button>
+          <el-button type="primary" @click="submitForm('studentForm')">{{ this.flag ? '保存' : '创建' }}</el-button>
+          <el-button @click="resetForm('studentForm')">重置</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -127,8 +150,10 @@
 </template>
 
 <script>
+import {formatDate} from '@/util/LocalDateUtils'
+
 export default {
-  name: "Clbum",
+  name: "Students",
   data() {
     return {
       /** 搜索栏 */
@@ -145,23 +170,29 @@ export default {
       dialogVisible: false,
       /** 专业列表数据 */
       tableData: [],
-      clbumForm: {
+      studentForm: {
       },
-      clbumFormRules: {
+      studentFormRules: {
+        studentId: [
+          {required: true, message: '请输入学号', trigger: 'blur'}
+        ],
+        studentName: [
+          {required: true, message: '请输入学生姓名', trigger: 'blur'}
+        ],
+        gender: [
+          {required: true, message: '请输入性别', trigger: 'blur'}
+        ],
+        birthday: [
+          {required: true, message: '请选择出生日期', trigger: 'blur'}
+        ],
+        nationality: [
+          {required: true, message: '请输入民族', trigger: 'blur'}
+        ],
         clbumId: [
           {required: true, message: '请输入班级编号', trigger: 'blur'}
         ],
-        clbumName: [
-          {required: true, message: '请输入班级名称', trigger: 'blur'}
-        ],
-        professionId: [
-          {required: true, message: '请输入所属专业编号', trigger: 'blur'}
-        ],
-        clbumCounselor: [
-          {required: true, message: '请输入班级辅导员', trigger: 'blur'}
-        ],
-        officePhone: [
-          {required: true, message: '请输入办公室电话', trigger: 'blur'}
+        studentPhone: [
+          {required: true, message: '请输入学生电话', trigger: 'blur'}
         ]
       },
       /** 批量删除选中 */
@@ -172,7 +203,7 @@ export default {
   },
 
   created() {
-    this.getClbumList();
+    this.getStudentList();
   },
 
   methods: {
@@ -200,7 +231,7 @@ export default {
      */
     handleSizeChange(val) {
       this.size = val;
-      this.getClbumList();
+      this.getStudentList();
     },
 
     /**
@@ -208,32 +239,43 @@ export default {
      */
     handleCurrentChange(val) {
       this.current = val;
-      this.getClbumList();
+      this.getStudentList();
     },
 
     /**
      * 重置对话框
      */
-    resetForm(clbumForm) {
-      this.$refs[clbumForm].resetFields();
-      this.clbumForm = {};
+    resetForm(studentForm) {
+      this.$refs[studentForm].resetFields();
+      this.studentForm = {};
     },
 
     /**
      * 关闭对话框
      */
     handleClose() {
-      this.resetForm('clbumForm');
+      this.resetForm('studentForm');
       this.dialogVisible = false;
+    },
+
+    /**
+     * 日期列表格式转化
+     */
+    dateFormatter(row, column, cellValue){
+      let  dateTime = new Date(cellValue);
+      let year = dateTime.getFullYear() + '-';
+      let month = dateTime.getMonth() + 1 + '-';
+      let day = dateTime.getDate();
+      return year + month + day;
     },
 
     /**
      * 获取所有专业信息
      */
-    getClbumList() {
-      this.$axios.get("/clbum/list", {
+    getStudentList() {
+      this.$axios.get("/student/list", {
         params: {
-          clbumName: this.searchForm.name,
+          studentName: this.searchForm.name,
           current: this.current,
           size: this.size
         }
@@ -247,23 +289,27 @@ export default {
 
     /**
      * 新增确认添加专业信息
-     * @param clbumForm formName
+     * @param studentForm formName
      */
-    submitForm(clbumForm) {
-      this.$refs[clbumForm].validate((valid) => {
+    submitForm(studentForm) {
+      this.$refs[studentForm].validate((valid) => {
         if (valid) {
-          this.$axios.post('/clbum/' + (this.flag ? 'update' : 'save'), this.clbumForm)
+          // 判断birthday是否为一个对象，是则进行转换
+          if (this.studentForm.birthday instanceof Object) {
+            this.studentForm.birthday = formatDate(this.studentForm.birthday);
+          }
+          this.$axios.post('/student/' + (this.flag ? 'update' : 'save'), this.studentForm)
               .then(res => {
                 this.$message({
                   showClose: true,
                   message: res.data.msg,
                   type: 'success',
                   onClose:() => {
-                    this.getClbumList()
+                    this.getStudentList()
                   }
                 });
                 this.dialogVisible = false;
-                this.resetForm(clbumForm);
+                this.resetForm(studentForm);
               });
           // 关闭弹出框
           this.dialogVisible = false;
@@ -285,9 +331,9 @@ export default {
     /**
      * 编辑专业信息
      */
-    editHandle(clbumId) {
-      this.$axios.get('/clbum/info/' + clbumId).then(res => {
-        this.clbumForm = res.data.data;
+    editHandle(studentId) {
+      this.$axios.get('/student/info/' + studentId).then(res => {
+        this.studentForm = res.data.data;
         this.dialogVisible = true;
         this.flag = true;
       });
@@ -295,24 +341,24 @@ export default {
 
     /**
      * 批量删除
-     * @param clbumId 班级编号
+     * @param studentId 学号
      */
-    delHandle(clbumId) {
-      let clbumIds = [];
-      if (clbumId) {
-        clbumIds.push(clbumId);
+    delHandle(studentId) {
+      let studentIds = [];
+      if (studentId) {
+        studentIds.push(studentId);
       } else {
         this.multipleSelection.forEach(row => {
-          clbumIds.push(row.clbumId);
+          studentIds.push(row.studentId);
         });
       }
-      this.$axios.post("/clbum/delete", clbumIds).then(res => {
+      this.$axios.post("/student/delete", studentIds).then(res => {
         this.$message({
           showClose: true,
           message: res.data.msg,
           type: 'success',
           onClose:() => {
-            this.getClbumList()
+            this.getStudentList()
           }
         });
       });

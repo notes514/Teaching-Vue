@@ -11,7 +11,7 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button @click="getAcademyList">搜索</el-button>
+        <el-button @click="getCourseList">搜索</el-button>
       </el-form-item>
 
       <el-form-item>
@@ -23,7 +23,7 @@
         </el-popconfirm>
       </el-form-item>
     </el-form>
-    <!-- 学院列表 -->
+    <!-- 专业列表 -->
     <el-table
         ref="multipleTable"
         style="width: 100%;"
@@ -40,38 +40,44 @@
           width="55">
       </el-table-column>
       <el-table-column
-          prop="academyId"
-          label="院系编号"
-          width="140">
+          prop="courseId"
+          label="课程编号"
+          width="120">
       </el-table-column>
       <el-table-column
-          prop="academyName"
-          label="院系名称"
-          width="160">
+          prop="courseName"
+          label="课程名称"
+          width="120">
       </el-table-column>
       <el-table-column
-          prop="academyDean"
-          label="院系院长"
-          width="140">
+          prop="courseCredit"
+          label="课程学分"
+          width="120">
       </el-table-column>
       <el-table-column
-          prop="officePhone"
-          label="办公室电话"
-          width="160">
+          prop="courseHours"
+          label="课程学时"
+          width="120">
+      </el-table-column>
+      <el-table-column
+          prop="startTime"
+          label="开课时间"
+          width="140"
+          :formatter="dateFormatter">
       </el-table-column>
       <el-table-column
           prop="createTime"
           label="创建时间"
-          width="200">
+          width="180">
       </el-table-column>
       <el-table-column
           prop="icon"
           label="操作">
         <template slot-scope="scope">
-          <el-button type="text" @click="editHandle(scope.row.academyId)">编辑</el-button>
+          <el-button type="text" @click="editHandle(scope.row.courseId)">编辑</el-button>
           <el-divider direction="vertical"></el-divider>
           <template>
-            <el-popconfirm title="确定要删除吗？" @confirm="delHandle(scope.row.academyId)">
+            <el-popconfirm title="确定要删除吗？" @confirm="delHandle(scope.row.courseId)">
               <el-button type="text" slot="reference">删除</el-button>
             </el-popconfirm>
           </template>
@@ -96,22 +102,31 @@
         :visible.sync="dialogVisible"
         width="600px"
         :before-close="handleClose">
-      <el-form :model="academyForm" :rules="academyFormRules" ref="academyForm" label-width="100px" class="demo-editForm">
-        <el-form-item label="院系编号" prop="academyId" label-width="120px">
-          <el-input v-model="academyForm.academyId" autocomplete="off"></el-input>
+      <el-form :model="studentForm" :rules="studentFormRules" ref="studentForm" label-width="100px" class="demo-editForm">
+        <el-form-item label="课程编号" prop="courseId" label-width="120px">
+          <el-input v-model="studentForm.courseId" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="院系名称" prop="academyName" label-width="120px">
-          <el-input v-model="academyForm.academyName" autocomplete="off"></el-input>
+        <el-form-item label="课程名称" prop="courseName" label-width="120px">
+          <el-input v-model="studentForm.courseName" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="院系院长" prop="academyDean" label-width="120px">
-          <el-input v-model="academyForm.academyDean" autocomplete="off"></el-input>
+        <el-form-item label="课程学分" prop="courseCredit" label-width="120px">
+          <el-input v-model="studentForm.courseCredit" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="办公室电话" prop="officePhone" label-width="120px">
-          <el-input v-model="academyForm.officePhone" autocomplete="off"></el-input>
+        <el-form-item label="课程学时" prop="courseHours" label-width="120px">
+          <el-input v-model="studentForm.courseHours" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="开课时间" prop="startTime" label-width="120px">
+          <el-date-picker
+              v-model="studentForm.startTime"
+              type="date"
+              format="yyyy-MM-dd"
+              size="large"
+              placeholder="选择日期时间">
+          </el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitForm('academyForm')">{{ this.flag ? '保存' : '创建' }}</el-button>
-          <el-button @click="resetForm('academyForm')">重置</el-button>
+          <el-button type="primary" @click="submitForm('studentForm')">{{ this.flag ? '保存' : '创建' }}</el-button>
+          <el-button @click="resetForm('studentForm')">重置</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -119,8 +134,10 @@
 </template>
 
 <script>
+import {formatDate} from '@/util/LocalDateUtils'
+
 export default {
-  name: "Academy",
+  name: "Course",
   data() {
     return {
       /** 搜索栏 */
@@ -135,22 +152,25 @@ export default {
       current: 1,
       /** 新增编辑弹出框显示状态（默认不显示） */
       dialogVisible: false,
-      /** 学院列表数据 */
+      /** 专业列表数据 */
       tableData: [],
-      academyForm: {
+      studentForm: {
       },
-      academyFormRules: {
-        academyId: [
-          {required: true, message: '请输入院系编号', trigger: 'blur'}
+      studentFormRules: {
+        courseId: [
+          {required: true, message: '请输入课程编号', trigger: 'blur'}
         ],
-        academyName: [
-          {required: true, message: '请输入院系名称', trigger: 'blur'}
+        courseName: [
+          {required: true, message: '请输入学生课程名称', trigger: 'blur'}
         ],
-        academyDean: [
-          {required: true, message: '请输入院长姓名', trigger: 'blur'}
+        courseCredit: [
+          {required: true, message: '请输入课程学分', trigger: 'blur'}
         ],
-        officePhone: [
-          {required: true, message: '请输入办公室电话', trigger: 'blur'}
+        courseHours: [
+          {required: true, message: '请输入课程学时', trigger: 'blur'}
+        ],
+        startTime: [
+          {required: true, message: '请选择开课时间', trigger: 'blur'}
         ]
       },
       /** 批量删除选中 */
@@ -161,7 +181,11 @@ export default {
   },
 
   created() {
-    this.getAcademyList();
+    this.getCourseList();
+  },
+
+  computed: {
+
   },
 
   methods: {
@@ -176,10 +200,9 @@ export default {
     },
 
     /**
-     * 勾线学院列表信息
+     * 勾线专业列表信息
      */
     handleSelectionChange(val) {
-      console.log("勾选")
       console.log(val)
       this.multipleSelection = val;
       this.delBtlState = val.length === 0;
@@ -189,43 +212,52 @@ export default {
      * 获取总页数
      */
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
       this.size = val;
-      this.getAcademyList();
+      this.getCourseList();
     },
 
     /**
      * 获取当前页信息
      */
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
       this.current = val;
-      this.getAcademyList();
+      this.getCourseList();
     },
 
     /**
      * 重置对话框
      */
-    resetForm(academyForm) {
-      this.$refs[academyForm].resetFields();
-      this.academyForm = {};
+    resetForm(studentForm) {
+      this.$refs[studentForm].resetFields();
+      this.studentForm = {};
     },
 
     /**
      * 关闭对话框
      */
     handleClose() {
-      this.resetForm('academyForm');
+      this.resetForm('studentForm');
       this.dialogVisible = false;
     },
 
     /**
-     * 获取所有学院信息
+     * 日期列表格式转化
      */
-    getAcademyList() {
-      this.$axios.get("/academy/list", {
+    dateFormatter(row, column, cellValue){
+      let  dateTime = new Date(cellValue);
+      let year = dateTime.getFullYear() + '-';
+      let month = dateTime.getMonth() + 1 + '-';
+      let day = dateTime.getDate();
+      return year + month + day;
+    },
+
+    /**
+     * 获取所有专业信息
+     */
+    getCourseList() {
+      this.$axios.get("/course/list", {
         params: {
-          academyName: this.searchForm.name,
+          courseName: this.searchForm.name,
           current: this.current,
           size: this.size
         }
@@ -238,30 +270,31 @@ export default {
     },
 
     /**
-     * 新增确认添加学院信息
-     * @param academyForm formName
+     * 新增确认添加专业信息
+     * @param studentForm formName
      */
-    submitForm(academyForm) {
-      this.$refs[academyForm].validate((valid) => {
+    submitForm(studentForm) {
+      this.$refs[studentForm].validate((valid) => {
         if (valid) {
-          console.log("this.academyForm.academyId");
-          console.log(this.academyForm.academyId);
-          console.log((this.academyForm.academyId ? 'update' : 'save'));
-          this.$axios.post('/academy/' + (this.flag ? 'update' : 'save'), this.academyForm)
-          .then(() => {
-            this.$message({
-              showClose: true,
-              message: '操作成功！',
-              type: 'success',
-              onClose:() => {
-                this.getAcademyList()
-              }
-            });
-            this.dialogVisible = false;
-            this.resetForm(academyForm);
-          });
+          // 判断startTime是否为一个对象，是则进行转换
+          if (this.studentForm.startTime instanceof Object) {
+            this.studentForm.startTime = formatDate(this.studentForm.startTime);
+          }
+          this.$axios.post('/course/' + (this.flag ? 'update' : 'save'), this.studentForm)
+              .then(res => {
+                this.$message({
+                  showClose: true,
+                  message: res.data.msg,
+                  type: 'success',
+                  onClose:() => {
+                    this.getCourseList()
+                  }
+                });
+                this.dialogVisible = false;
+                this.resetForm(studentForm);
+              });
+          // 关闭弹出框
           this.dialogVisible = false;
-          console.log('添加成功！');
         } else {
           console.log('error submit!!');
           return false;
@@ -270,7 +303,7 @@ export default {
     },
 
     /**
-     *
+     * 新增专业信息
      */
     addHandle() {
       this.dialogVisible = true;
@@ -278,11 +311,11 @@ export default {
     },
 
     /**
-     * 编辑学院信息
+     * 编辑专业信息
      */
-    editHandle(academyId) {
-      this.$axios.get('/academy/info/' + academyId).then(res => {
-        this.academyForm = res.data.data;
+    editHandle(courseId) {
+      this.$axios.get('/course/info/' + courseId).then(res => {
+        this.studentForm = res.data.data;
         this.dialogVisible = true;
         this.flag = true;
       });
@@ -290,26 +323,24 @@ export default {
 
     /**
      * 批量删除
-     * @param academyId 学院编号
+     * @param courseId 课程编号
      */
-    delHandle(academyId) {
-      let academyIds = [];
-      if (academyId) {
-        academyIds.push(academyId);
+    delHandle(courseId) {
+      let courseIds = [];
+      if (courseId) {
+        courseIds.push(courseId);
       } else {
         this.multipleSelection.forEach(row => {
-          academyIds.push(row.academyId);
+          courseIds.push(row.courseId);
         });
       }
-      console.log("academyIds");
-      console.log(academyIds);
-      this.$axios.post("/academy/delete", academyIds).then(res => {
+      this.$axios.post("/course/delete", courseIds).then(res => {
         this.$message({
           showClose: true,
           message: res.data.msg,
           type: 'success',
           onClose:() => {
-            this.getAcademyList()
+            this.getCourseList()
           }
         });
       });

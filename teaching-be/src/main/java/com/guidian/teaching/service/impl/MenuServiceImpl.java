@@ -32,6 +32,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
         String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userService.getByUsername(username);
         List<Menu> menus = menuService.list(new QueryWrapper<Menu>().eq("authority", user.getAuthority()));
+        System.out.println("menus：" + menus);
         // 转树状结构
         List<Menu> menuTree = buildTreeMenu(menus);
         // 实体转DTO

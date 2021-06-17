@@ -51,7 +51,7 @@
       </el-table-column>
       <el-table-column
           prop="academyId"
-          label="所属专业编号"
+          label="所属院系编号"
           width="140">
       </el-table-column>
       <el-table-column
@@ -103,7 +103,7 @@
         <el-form-item label="专业名称" prop="professionName" label-width="120px">
           <el-input v-model="professionForm.professionName" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="所属专业编号" prop="academyId" label-width="120px">
+        <el-form-item label="所属院系编号" prop="academyId" label-width="120px">
           <el-input v-model="professionForm.academyId" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="办公室电话" prop="officePhone" label-width="120px">
@@ -119,6 +119,8 @@
 </template>
 
 <script>
+import {isPoneAvailable} from '@/util/LocalDateUtils'
+
 export default {
   name: "Profession",
   data() {
@@ -150,7 +152,12 @@ export default {
           {required: true, message: '请输入所属学院编号', trigger: 'blur'}
         ],
         officePhone: [
-          {required: true, message: '请输入办公室电话', trigger: 'blur'}
+          {
+            required: true,
+            pattern: /^0?(13[0-9]|15[7-9]|153|156|18[7-9])[0-9]{8}$/,
+            message: '手机号码格式不正确',
+            trigger: 'blur',
+          }
         ]
       },
       /** 批量删除选中 */
@@ -205,7 +212,6 @@ export default {
      */
     resetForm(professionForm) {
       this.$refs[professionForm].resetFields();
-      this.dialogVisible = false;
       this.professionForm = {};
     },
 
@@ -214,6 +220,7 @@ export default {
      */
     handleClose() {
       this.resetForm('professionForm');
+      this.dialogVisible = false;
     },
 
     /**
@@ -241,6 +248,10 @@ export default {
     submitForm(professionForm) {
       this.$refs[professionForm].validate((valid) => {
         if (valid) {
+          if (!isPoneAvailable(this.professionForm.officePhone)) {
+
+          }
+
           this.$axios.post('/profession/' + (this.flag ? 'update' : 'save'), this.professionForm)
               .then(res => {
                 this.$message({

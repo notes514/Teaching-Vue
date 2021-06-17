@@ -227,7 +227,6 @@ export default {
      */
     resetForm(teacherForm) {
       this.$refs[teacherForm].resetFields();
-      this.dialogVisible = false;
       this.teacherForm = {};
     },
 
@@ -236,6 +235,7 @@ export default {
      */
     handleClose() {
       this.resetForm('teacherForm');
+      this.dialogVisible = false;
     },
 
     /**

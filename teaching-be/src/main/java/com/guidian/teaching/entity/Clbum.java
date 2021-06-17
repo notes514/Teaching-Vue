@@ -1,5 +1,6 @@
 package com.guidian.teaching.entity;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.guidian.teaching.entity.base.BaseEntity;
 import lombok.Data;
@@ -15,8 +16,8 @@ import lombok.EqualsAndHashCode;
 @TableName("tb_clbum")
 public class Clbum extends BaseEntity {
     private static final long serialVersionUID = 1L;
-
     /** 班级编号 */
+    @TableId
     private String clbumId;
     /** 班级名称 */
     private String clbumName;

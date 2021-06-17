@@ -1,8 +1,10 @@
 package com.guidian.teaching.entity;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.guidian.teaching.entity.base.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,8 +19,8 @@ import lombok.EqualsAndHashCode;
 @TableName("tb_course")
 public class Course extends BaseEntity {
     private static final long serialVersionUID = 1L;
-
     /** 课程编号 */
+    @TableId
     private String courseId;
     /** 课程名称 */
     private String courseName;
@@ -27,5 +29,6 @@ public class Course extends BaseEntity {
     /** 课程学时 */
     private String courseHours;
     /** 开课时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime startTime;
 }

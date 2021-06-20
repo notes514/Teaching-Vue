@@ -6,13 +6,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.guidian.teaching.common.lang.BaseResult;
 import com.guidian.teaching.common.lang.Const;
 import com.guidian.teaching.controller.base.BaseController;
-import com.guidian.teaching.entity.Academy;
-import com.guidian.teaching.entity.Clbum;
-import com.guidian.teaching.entity.Teacher;
-import com.guidian.teaching.entity.User;
+import com.guidian.teaching.entity.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
@@ -33,7 +31,7 @@ public class TeacherController extends BaseController {
      * @return com.guidian.teaching.common.lang.BaseResult
      */
     @PostMapping("/save")
-    public BaseResult saveProfession(@Validated @RequestBody Teacher teacher) {
+    public BaseResult saveTeacher(@Validated @RequestBody Teacher teacher) {
         if (academyService.getById(teacher.getAcademyId()) == null) {
             return BaseResult.failure("没有该院系编号，添加失败！");
         }
@@ -70,7 +68,7 @@ public class TeacherController extends BaseController {
      * @return com.guidian.teaching.common.lang.BaseResult
      */
     @PostMapping("/delete")
-    public BaseResult deleteProfession(@RequestBody String[] teacherIds) {
+    public BaseResult deleteTeacher(@RequestBody String[] teacherIds) {
         boolean flag = teacherService.removeByIds(Arrays.asList(teacherIds));
         return BaseResult.success(getCode(flag), getMsg(flag, "删除"), null);
     }
@@ -82,12 +80,26 @@ public class TeacherController extends BaseController {
      * @return com.guidian.teaching.common.lang.BaseResult
      */
     @GetMapping("/list")
-    public BaseResult getProfessionAll(String teacherName) {
+    public BaseResult getTeacherAll(String teacherName) {
         Page<Teacher> teacherPage = teacherService.page(
                 getPage(),
                 new QueryWrapper<Teacher>().like(StrUtil.isNotBlank(teacherName), "teacher_name", teacherName)
         );
         return BaseResult.success(teacherPage);
+    }
+
+    /**
+     * @Description 获取当前登录的教师信息
+     * @author dhxstart
+     * @date 2021/6/18 15:29
+     * @param principal ss
+     * @return com.guidian.teaching.common.lang.BaseResult
+     */
+    @GetMapping("/getTeacherByUsername")
+    public BaseResult getTeacherByUsername(Principal principal) {
+        User user = userService.getByUsername(principal.getName());
+        Teacher teacher = teacherService.getById(user.getUserId());
+        return BaseResult.success(teacher);
     }
 
     /**
@@ -98,7 +110,7 @@ public class TeacherController extends BaseController {
      * @return com.guidian.teaching.common.lang.BaseResult
      */
     @GetMapping("/info/{teacherId}")
-    public BaseResult getProfessionInfo(@PathVariable(name = "teacherId") String teacherId) {
+    public BaseResult getTeacherInfo(@PathVariable(name = "teacherId") String teacherId) {
         Teacher teacher = teacherService.getOne(new QueryWrapper<Teacher>().eq("teacher_id", teacherId));
         return BaseResult.success(teacher);
     }
@@ -111,7 +123,7 @@ public class TeacherController extends BaseController {
      * @return com.guidian.teaching.common.lang.BaseResult
      */
     @PostMapping("/update")
-    public BaseResult updateProfession(@Validated @RequestBody Teacher teacher) {
+    public BaseResult updateTeacher(@Validated @RequestBody Teacher teacher) {
         teacher.setUpdateTime(LocalDateTime.now());
         // 更新数据
         boolean flag = teacherService.updateById(teacher);

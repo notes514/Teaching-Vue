@@ -2,4 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.guidian.teaching.mapper.StudentCourseMapper">
 
+    <delete id="deleteStudentCourseByCourseIdsAndStudentIds" parameterType="map">
+        DELETE FROM `tb_student_course`
+        <where>
+            <foreach collection="courseIds" item="courseId" open="(" separator="OR" close=")">
+                course_id = #{courseId}
+            </foreach>
+            AND
+            <foreach collection="studentIds" item="studentId" open="(" separator="OR" close=")">
+                student_id = #{studentId}
+            </foreach>
+        </where>
+    </delete>
 </mapper>

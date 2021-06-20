@@ -29,7 +29,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("用户名或密码不正确！");
         }
-        return new AccountUser(user.getUserId(), user.getUsername(), user.getPassword(), getUserAuthority(user.getUserId()));
+        return new AccountUser(user.getUserId(), user.getUsername(), user.getPassword(), new TreeSet<>());
     }
 
     /**
@@ -41,6 +41,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
      */
 	public List<GrantedAuthority> getUserAuthority(String userId){
 		 //角色(ROLE_admin)、菜单操作权限 system:user:list
-		return AuthorityUtils.commaSeparatedStringToAuthorityList(userService.getUserAuthorityInfo(userId));
+		return AuthorityUtils.commaSeparatedStringToAuthorityList(null);
 	}
 }

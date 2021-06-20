@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @Description 学生表控制处理器
@@ -81,12 +82,26 @@ public class StudentController extends BaseController {
      * @return com.guidian.teaching.common.lang.BaseResult
      */
     @GetMapping("/list")
-    public BaseResult getStudentAll(String studentName) {
+    public BaseResult getStudentAllPage(String studentName) {
         Page<Student> studentPage = studentService.page(
                 getPage(),
                 new QueryWrapper<Student>().like(StrUtil.isNotBlank(studentName), "student_name", studentName)
         );
         return BaseResult.success(studentPage);
+    }
+
+    /**
+     * @Description 根据编辑编号获取多条学生记录
+     * @author dhxstart
+     * @date 2021/6/18 14:52
+     * @param clbumId 班级编号
+     * @return com.guidian.teaching.common.lang.BaseResult
+     * @throws
+     */
+    @GetMapping("/getStudentAllByClbumId/{clbumId}")
+    public BaseResult getStudentAllByClbumId(@PathVariable(name = "clbumId") String clbumId) {
+        List<Student> studentList = studentService.list(new QueryWrapper<Student>().eq("clbum_id", clbumId));
+        return BaseResult.success(studentList);
     }
 
     /**

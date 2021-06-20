@@ -22,14 +22,4 @@ public class SystemMenuDto {
 
     public SystemMenuDto() {
     }
-
-    public SystemMenuDto(Long menuId, String name, String title, String icon, String path, String component, List<SystemMenuDto> children) {
-        this.menuId = menuId;
-        this.name = name;
-        this.title = title;
-        this.icon = icon;
-        this.path = path;
-        this.component = component;
-        this.children = children;
-    }
 }

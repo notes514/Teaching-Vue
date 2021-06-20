@@ -22,13 +22,27 @@ public class Course extends BaseEntity {
     /** 课程编号 */
     @TableId
     private String courseId;
+    /** 该课程所属的教师编号 */
+    private String teacherId;
+    /** 该课程所属的班级编号 */
+    private String clbumId;
     /** 课程名称 */
     private String courseName;
     /** 课程学分 */
     private Integer courseCredit;
     /** 课程学时 */
     private String courseHours;
+    /** 表示该课程在第几节 */
+    private String courseSection;
+    /**
+     * 表示该课程在周几上课使用逗号分隔，
+     * 0,1,2,3,4,5,6分别表示周日、一、二、三、四、五、六
+     */
+    private String courseWhichDay;
     /** 开课时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime startTime;
+    /** 结课时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime endTime;
 }

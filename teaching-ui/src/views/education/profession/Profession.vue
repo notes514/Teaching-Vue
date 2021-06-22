@@ -47,7 +47,7 @@
       <el-table-column
           prop="professionName"
           label="专业名称"
-          width="160">
+          width="200">
       </el-table-column>
       <el-table-column
           prop="academyId"

@@ -2,4 +2,52 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.guidian.teaching.mapper.CourseMapper">
 
+    <select id="isExistCourse" parameterType="map" resultType="java.lang.Boolean">
+        SELECT * FROM `tb_course`
+        <where>
+            <if test="course_id != null">
+                `course_id` = #{course_id}
+            </if>
+            <if test="teacher_id != null">
+                AND `teacher_id` = #{teacher_id}
+            </if>
+            <if test="clbum_id != null">
+                AND `clbum_id` = #{clbum_id}
+            </if>
+        </where>
+    </select>
+
+    <select id="getAdministratorAddCourse" resultType="com.guidian.teaching.entity.Course">
+        SELECT * FROM `tb_course`
+        <where>
+            <if test="teacher_id == null">
+                `teacher_id` IS NULL
+            </if>
+            <if test="clbum_id == null">
+                AND `clbum_id` IS NULL
+            </if>
+        </where>
+    </select>
+
+    <select id="getCourseAllByCourseId" parameterType="list" resultType="com.guidian.teaching.entity.Course">
+        SELECT * FROM `tb_course`
+        <where>
+            <foreach collection="courseIds" item="courseId" open="(" separator="OR" close=")">
+                course_id = #{courseId}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="getElectiveCourse" resultType="com.guidian.teaching.entity.Course">
+        SELECT * FROM `tb_course`
+        <where>
+            <if test="teacher_id == null">
+                `teacher_id` IS NULL
+            </if>
+            <if test="clbum_id == null">
+                AND `clbum_id` IS NULL
+            </if>
+            AND `course_category` = '1';
+        </where>
+    </select>
 </mapper>

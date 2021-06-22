@@ -96,7 +96,6 @@ public class StudentController extends BaseController {
      * @date 2021/6/18 14:52
      * @param clbumId 班级编号
      * @return com.guidian.teaching.common.lang.BaseResult
-     * @throws
      */
     @GetMapping("/getStudentAllByClbumId/{clbumId}")
     public BaseResult getStudentAllByClbumId(@PathVariable(name = "clbumId") String clbumId) {

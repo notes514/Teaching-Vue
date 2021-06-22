@@ -47,7 +47,7 @@
       <el-table-column
           prop="academyName"
           label="院系名称"
-          width="160">
+          width="180">
       </el-table-column>
       <el-table-column
           prop="academyDean"

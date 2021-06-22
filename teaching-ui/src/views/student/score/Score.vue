@@ -4,23 +4,12 @@
       <el-form-item>
         <el-input
             v-model="searchForm.name"
-            placeholder="名称"
-            clearable
-        >
+            placeholder="请输入课程名称"
+            clearable>
         </el-input>
       </el-form-item>
-
       <el-form-item>
-        <el-button @click="getStudentCursorList">搜索</el-button>
-      </el-form-item>
-
-      <el-form-item>
-        <el-button type="primary" @click="addHandle">新增</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-popconfirm title="这是确定批量删除吗？" @confirm="delHandle(null)">
-          <el-button type="danger" slot="reference" :disabled="delBtlState">批量删除</el-button>
-        </el-popconfirm>
+        <el-button @click="getStudentCourseByStudentId">搜索</el-button>
       </el-form-item>
     </el-form>
     <!-- 专业列表 -->
@@ -28,51 +17,32 @@
         ref="multipleTable"
         style="width: 100%;"
         :data="tableData"
-        :row-style="{height: '24px'}"
-        :header-cell-style="{textAlign: 'center', height: '24px'}"
+        :row-style="{height: '36px'}"
+        :header-cell-style="{textAlign: 'center', height: '36px', padding: '8px'}"
         :cell-style="{textAlign: 'center', padding: '1px'}"
         tooltip-effect="dark"
         border
         stripe
         @selection-change="handleSelectionChange">
       <el-table-column
-          type="selection"
-          width="55">
-      </el-table-column>
-      <el-table-column
           prop="studentId"
-          label="学号"
-          width="130">
+          label="学号">
       </el-table-column>
       <el-table-column
           prop="studentName"
-          label="姓名"
-          width="100">
-      </el-table-column>
-      <el-table-column
-          prop="gender"
-          label="性别"
-          width="80">
-      </el-table-column>
-      <el-table-column
-          prop="clbumId"
-          label="班级"
-          width="110">
+          label="姓名">
       </el-table-column>
       <el-table-column
           prop="courseName"
-          label="课程名称"
-          width="120">
+          label="课程名称">
       </el-table-column>
       <el-table-column
           prop="score"
-          label="成绩"
-          width="100">
+          label="成绩">
       </el-table-column>
       <el-table-column
           prop="tag"
-          label="等级 "
-          width="100">
+          label="等级 ">
         <template slot-scope="scope">
           <el-tag size="small" v-if="scope.row.score >= 90" type="success">优秀</el-tag>
           <el-tag size="small" v-else-if="scope.row.score >= 80" type="warning">良好</el-tag>
@@ -82,24 +52,9 @@
       </el-table-column>
       <el-table-column
           prop="updateTime"
-          label="更新时间"
-          width="180">
-      </el-table-column>
-      <el-table-column
-          prop="icon"
-          label="操作">
-        <template slot-scope="scope">
-            <el-button type="text" @click="editHandle(scope.row)">编辑</el-button>
-          <el-divider direction="vertical"></el-divider>
-          <template>
-            <el-popconfirm title="确定要删除吗？" @confirm="delHandle(scope.row)">
-              <el-button type="text" slot="reference">删除</el-button>
-            </el-popconfirm>
-          </template>
-        </template>
+          label="更新时间">
       </el-table-column>
     </el-table>
-
     <!-- 分页 -->
     <el-pagination
         @size-change="handleSizeChange"
@@ -110,7 +65,6 @@
         :page-size="size"
         :total="total">
     </el-pagination>
-
     <!-- 新增对话框 -->
     <el-dialog
         title="提示"
@@ -221,7 +175,7 @@ export default {
   },
 
   created() {
-    this.getStudentCursorList();
+    this.getStudentCourseByStudentId();
   },
 
   methods: {
@@ -248,7 +202,7 @@ export default {
      */
     handleSizeChange(val) {
       this.size = val;
-      this.getStudentCursorList();
+      this.getStudentCourseByStudentId();
     },
 
     /**
@@ -256,7 +210,7 @@ export default {
      */
     handleCurrentChange(val) {
       this.current = val;
-      this.getStudentCursorList();
+      this.getStudentCourseByStudentId();
     },
 
     /**
@@ -280,25 +234,19 @@ export default {
      */
     dateFormatter(row, column, cellValue){
       let  dateTime = new Date(cellValue);
-      let year = dateTime.getFullYear();
-      let month = dateTime.getMonth() + 1;
+      let year = dateTime.getFullYear() + '-';
+      let month = dateTime.getMonth() + 1 + '-';
       let day = dateTime.getDate();
-      if (month < 10) {
-        month = "0" + month;
-      }
-      if (day < 10) {
-        day = "0" + day;
-      }
-      return year  + '-' + month + '-' + day;
+      return year + month + day;
     },
 
     /**
-     * 获取所有课程信息
+     * 获取所有专业信息
      */
-    getStudentCursorList() {
-      this.$axios.get("/student/course/list", {
+    getStudentCourseByStudentId() {
+      this.$axios.get("/student/course/getStudentCourseByStudentId", {
         params: {
-          studentName: this.searchForm.name,
+          courseName: this.searchForm.name,
           current: this.current,
           size: this.size
         }
@@ -329,7 +277,7 @@ export default {
                   message: res.data.msg,
                   type: 'success',
                   onClose:() => {
-                    this.getStudentCursorList()
+                    this.getStudentCourseByStudentId()
                   }
                 });
                 this.dialogVisible = false;
@@ -413,7 +361,6 @@ export default {
 
     /**
      * 批量删除
-     *
      * @param studentCourse 学号
      */
     delHandle(studentCourse) {
@@ -433,7 +380,6 @@ export default {
           studentIds.push(row.studentId);
         });
       }
-
       let formData = new FormData();
       formData.append("courseIds", courseIds);
       formData.append("studentIds", studentIds);
@@ -444,7 +390,7 @@ export default {
           message: res.data.msg,
           type: 'success',
           onClose:() => {
-            this.getStudentCursorList()
+            this.getStudentCourseByStudentId()
           }
         });
       });

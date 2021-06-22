@@ -3,6 +3,9 @@ package com.guidian.teaching.common.exception;
 import com.guidian.teaching.common.lang.BaseResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,6 +18,22 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * @Description 实体校验异常捕获
+     * @author dhxstart
+     * @date 2021/6/20 23:06
+     * @param e MethodArgumentNotValidException
+     * @return com.guidian.teaching.common.lang.BaseResult
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    public BaseResult handler(MethodArgumentNotValidException e) {
+        BindingResult result = e.getBindingResult();
+        ObjectError objectError = result.getAllErrors().stream().findFirst().get();
+        log.error("实体校验异常：", objectError.getDefaultMessage());
+        return BaseResult.failure(objectError.getDefaultMessage());
+    }
 
     /**
      * @Description Assert异常处理

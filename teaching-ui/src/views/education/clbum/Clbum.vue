@@ -60,14 +60,14 @@
           width="160">
       </el-table-column>
       <el-table-column
-          prop="createTime"
-          label="创建时间"
-          width="180">
-      </el-table-column>
-      <el-table-column
           prop="officePhone"
           label="办公室电话"
           width="160">
+      </el-table-column>
+      <el-table-column
+          prop="createTime"
+          label="创建时间"
+          width="180">
       </el-table-column>
       <el-table-column
           prop="icon"

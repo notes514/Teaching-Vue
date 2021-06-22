@@ -26,6 +26,7 @@ export function formatDate(date) {
     if (secs < 10) {
         secs = "0" + secs;
     }
+    console.log(year + "-" + month + "-" + day + " " + hours + ":" + mins + ":" + secs)
     return year + "-" + month + "-" + day + " " + hours + ":" + mins + ":" + secs;
 }
 

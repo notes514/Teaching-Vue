@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.guidian.teaching.common.dto.Page;
 import com.guidian.teaching.common.dto.StudentCourseDto;
 import com.guidian.teaching.common.lang.BaseResult;
+import com.guidian.teaching.common.lang.Const;
 import com.guidian.teaching.controller.base.BaseController;
 import com.guidian.teaching.entity.*;
 import org.springframework.validation.annotation.Validated;
@@ -62,55 +63,43 @@ public class StudentCourseController extends BaseController {
     }
 
     /**
-     * @Description 获取多条学生课程信息记录
+     * @Description 获取当前登录得学生成绩信息
      * @author dhxstart
      * @date 2021/6/17 22:15
+     * @param principal 用来表示任何实体
      * @return com.guidian.teaching.common.lang.BaseResult
      */
-    @GetMapping("/list")
-    public BaseResult getStudentCourseAll(Principal principal) {
-        final Teacher teacher = teacherService.getOne(new QueryWrapper<Teacher>().eq("teacher_name", principal.getName()));
-        if (teacher == null) {
-            BaseResult.failure("不存在该教师！");
-        }
-
+    @GetMapping("/getStudentCourseByStudentId")
+    public BaseResult getStudentCourseByStudentId(Principal principal) {
+        User user = userService.getByUsername(principal.getName());
+        final Student student = studentService.getById(user.getUserId());
         List<StudentCourse> studentCourses = studentCourseService.list(
-                new QueryWrapper<StudentCourse>().eq("teacher_id", teacher.getTeacherId()));
+                new QueryWrapper<StudentCourse>().eq("student_id", user.getUserId()));
 
-        List<StudentCourseDto> studentCourseDtoList = new ArrayList<>();
+        List<StudentCourseDto> studentCourseDtos = new ArrayList<>();
 
         studentCourses.forEach(item -> {
-            Student studentOne = studentService.getOne(new QueryWrapper<Student>().eq("student_id", item.getStudentId()));
-            Course courseOne = courseService.getOne(new QueryWrapper<Course>().eq("course_id", item.getCourseId()));
-
+            Course course = courseService.getById(item.getCourseId());
             StudentCourseDto studentCourseDto = new StudentCourseDto();
-            studentCourseDto.setStudentId(studentOne.getStudentId());
-            studentCourseDto.setStudentName(studentOne.getStudentName());
-            studentCourseDto.setGender(studentOne.getGender());
-            studentCourseDto.setClbumId(studentOne.getClbumId());
-            studentCourseDto.setCourseId(courseOne.getCourseId());
-            studentCourseDto.setCourseName(courseOne.getCourseName());
-            studentCourseDto.setTeacherId(teacher.getTeacherId());
-            studentCourseDto.setTeacherName(teacher.getTeacherName());
+            studentCourseDto.setStudentId(student.getStudentId());
+            studentCourseDto.setStudentName(student.getStudentName());
+            studentCourseDto.setCourseId(item.getCourseId());
+            studentCourseDto.setCourseName(course.getCourseName());
             studentCourseDto.setScore(item.getScore());
             studentCourseDto.setUpdateTime(item.getUpdateTime());
 
-            studentCourseDtoList.add(studentCourseDto);
+            studentCourseDtos.add(studentCourseDto);
         });
 
-        int total = studentCourseService.count(
-                new QueryWrapper<StudentCourse>().eq("teacher_id", teacher.getTeacherId()));
-
-        Page<StudentCourseDto> studentCourseDtoPage = new Page<>(studentCourseDtoList, total, 8, 1);
-
-        return BaseResult.success(studentCourseDtoPage);
+        Page<StudentCourseDto> courseDtoPage = new Page<>(studentCourseDtos, studentCourseDtos.size(), 8, 1);
+        return BaseResult.success(courseDtoPage);
     }
 
     /**
-     * @Description 获取单条学生课程信息记录
+     * @Description 获取当前课程信息
      * @author dhxstart
-     * @date 2021/6/17 22:15
-     * @param params 用于存放多参数
+     * @date 2021/6/22 17:26
+     * @param params 请求头参数
      * @return com.guidian.teaching.common.lang.BaseResult
      */
     @GetMapping("/info")
@@ -132,8 +121,55 @@ public class StudentCourseController extends BaseController {
         studentCourseDto.setCourseId(courseId);
         studentCourseDto.setCourseName(course.getCourseName());
         studentCourseDto.setScore(score);
-
         return BaseResult.success(studentCourseDto);
+    }
+
+
+    /**
+     * @Description 获取多条学生课程信息记录
+     * @author dhxstart
+     * @date 2021/6/17 22:15
+     * @return com.guidian.teaching.common.lang.BaseResult
+     */
+    @GetMapping("/list")
+    public BaseResult getStudentCourseAll(Principal principal) {
+        User user = userService.getByUsername(principal.getName());
+
+        int total;
+        List<StudentCourse> studentCourses;
+        if (user.getAuthority().equals(Const.STUDENT_AUTHORITY)) {
+            total = studentCourseService.count(
+                    new QueryWrapper<StudentCourse>().eq("student_id", user.getUserId()));
+            studentCourses = studentCourseService.list(
+                    new QueryWrapper<StudentCourse>().eq("student_id", user.getUserId()));
+        } else {
+            total = studentCourseService.count(
+                    new QueryWrapper<StudentCourse>().eq("teacher_id", user.getUserId()));
+            studentCourses = studentCourseService.list(
+                    new QueryWrapper<StudentCourse>().eq("teacher_id", user.getUserId()));
+        }
+
+        List<StudentCourseDto> studentCourseDtoList = new ArrayList<>();
+        studentCourses.forEach(item -> {
+            Student studentOne = studentService.getOne(new QueryWrapper<Student>().eq("student_id", item.getStudentId()));
+            Course courseOne = courseService.getOne(new QueryWrapper<Course>().eq("course_id", item.getCourseId()));
+
+            StudentCourseDto studentCourseDto = new StudentCourseDto();
+            studentCourseDto.setStudentId(studentOne.getStudentId());
+            studentCourseDto.setStudentName(studentOne.getStudentName());
+            studentCourseDto.setGender(studentOne.getGender());
+            studentCourseDto.setClbumId(studentOne.getClbumId());
+            studentCourseDto.setCourseId(courseOne.getCourseId());
+            studentCourseDto.setCourseName(courseOne.getCourseName());
+            studentCourseDto.setScore(item.getScore());
+            studentCourseDto.setUpdateTime(item.getUpdateTime());
+
+            studentCourseDtoList.add(studentCourseDto);
+        });
+
+        Page<StudentCourseDto> studentCourseDtoPage = new Page<>(studentCourseDtoList, total, 8, 1);
+
+        return BaseResult.success(studentCourseDtoPage);
     }
 
     /**

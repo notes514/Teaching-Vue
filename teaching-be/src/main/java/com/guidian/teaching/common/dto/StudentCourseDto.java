@@ -24,6 +24,8 @@ public class StudentCourseDto {
     private String courseId;
     /** 课程名称 */
     private String courseName;
+    /** 课程类别（0表示必修，1表示选修） */
+    private Integer courseCategory;
     /** 教师编号 */
     private String teacherId;
     /** 教师姓名 */

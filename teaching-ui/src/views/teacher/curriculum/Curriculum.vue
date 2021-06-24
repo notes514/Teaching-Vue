@@ -60,7 +60,7 @@ export default {
      * 获取课程信息
      */
     getCurriculumInfo() {
-      this.$axios.get("/course/getCurriculumInfo").then(res => {
+      this.$axios.get("/student/course/getCurriculumInfo").then(res => {
         this.tableData = res.data.data;
       });
     }

@@ -22,10 +22,6 @@ public class Course extends BaseEntity {
     /** 课程编号 */
     @TableId
     private String courseId;
-    /** 该课程所属的教师编号 */
-    private String teacherId;
-    /** 该课程所属的班级编号 */
-    private String clbumId;
     /** 课程名称 */
     private String courseName;
     /** 课程学分 */

@@ -18,6 +18,10 @@ public class Const {
     public static final String LOGIN_URL = "/login";
     /** POST请求方式 */
     public static final String METHOD_POST = "POST";
+    /** 插入操作 */
+    public static final String SAVE = "save";
+    /** 更新操作 */
+    public static final String UPDATE = "update";
     /** 默认密码 */
     public static final String DEFAULT_PASSWORD = "123456";
     /** 用户默认url地址 */

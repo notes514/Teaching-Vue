@@ -6,11 +6,11 @@
         DELETE FROM `tb_student_course`
         <where>
             <foreach collection="courseIds" item="courseId" open="(" separator="OR" close=")">
-                course_id = #{courseId}
+                `course_id` = #{courseId}
             </foreach>
             AND
             <foreach collection="studentIds" item="studentId" open="(" separator="OR" close=")">
-                student_id = #{studentId}
+                `student_id` = #{studentId}
             </foreach>
         </where>
     </delete>

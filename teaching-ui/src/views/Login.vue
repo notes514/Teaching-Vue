@@ -41,7 +41,7 @@ export default {
     return {
       labelPosition: 'top',
       loginForm: {
-        username: 'notes_514',
+        username: 'admin',
         password: '123456',
         code: '',
         token: '',

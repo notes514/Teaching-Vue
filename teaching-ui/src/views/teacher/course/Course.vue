@@ -50,14 +50,14 @@
           width="100">
       </el-table-column>
       <el-table-column
-          prop="courseCredit"
-          label="课程学分"
-          width="100">
-      </el-table-column>
-      <el-table-column
           prop="courseHours"
           label="课程学时"
           width="120">
+      </el-table-column>
+      <el-table-column
+          prop="courseCredit"
+          label="课程学分"
+          width="100">
       </el-table-column>
       <el-table-column
           prop="courseCategory"
@@ -117,29 +117,38 @@
         :visible.sync="dialogVisible"
         width="500px"
         :before-close="handleClose">
-      <el-form :model="courseForm" :rules="courseFormRules" ref="courseForm" label-width="100px" class="demo-editForm">
+      <el-form :model="teacherCourseForm" :rules="teacherCourseFormRules" ref="teacherCourseForm" label-width="100px" class="demo-editForm">
         <el-form-item label="课程名称" prop="courseName" label-width="120px">
-          <el-select v-model="courseForm.courseName" placeholder="请选择课程" :disabled="selectDisabled">
+          <el-select v-if="teacherCourseFlag === false" v-model="teacherCourseForm.courseId"
+                     placeholder="请选择课程" :disabled="selectDisabled">
             <el-option
-                v-for="item in courseForm"
-                :key="item.courseName"
+                v-for="item in teacherCourseList"
+                :key="item.courseId"
                 :label="item.courseName"
-                :value="item.courseName">
+                :value="item.courseId">
+            </el-option>
+          </el-select>
+          <el-select v-else v-model="teacherCourseForm.courseName"
+                     placeholder="请选择课程" :disabled="selectDisabled">
+            <el-option
+                :key="teacherCourseForm.courseId"
+                :label="teacherCourseForm.courseName"
+                :value="teacherCourseForm.courseId">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="课程班级" prop="clbumId" label-width="120px">
-          <el-select v-model="courseForm.clbumId" placeholder="请选择班级">
+          <el-select v-model="teacherCourseForm.clbumId" :disabled="selectDisabled" placeholder="请选择班级">
             <el-option
-                v-for="item in courseClbums"
+                v-for="item in courseClbumList"
                 :key="item.clbumId"
-                :label="item.clbumId"
+                :label="item.clbumName"
                 :value="item.clbumId">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="课程节数" prop="courseSection" label-width="120px">
-          <el-select v-model="courseForm.courseSection" placeholder="请选择节数">
+          <el-select v-model="teacherCourseForm.courseSection" placeholder="请选择节数">
             <el-option
                 v-for="item in courseSections"
                 :key="item.value"
@@ -149,7 +158,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="课程周天" prop="courseWhichDay" label-width="120px">
-          <el-select v-model="courseForm.courseWhichDay" multiple placeholder="请选择周天">
+          <el-select v-model="teacherCourseForm.courseWhichDay" multiple placeholder="请选择周天">
             <el-option
                 v-for="item in courseWhichDays"
                 :key="item.value"
@@ -157,10 +166,10 @@
                 :value="item.value">
             </el-option>
           </el-select>
-      </el-form-item>
+        </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitForm('courseForm')">{{ this.flag ? '保存' : '创建' }}</el-button>
-          <el-button @click="resetForm('courseForm')">重置</el-button>
+          <el-button type="primary" @click="submitForm('teacherCourseForm')">{{ this.teacherCourseFlag ? '保存' : '创建' }}</el-button>
+          <el-button @click="resetForm('teacherCourseForm')">重置</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -188,12 +197,12 @@ export default {
       dialogVisible: false,
       /** 专业列表数据 */
       tableData: [],
-      courseForm: {
-        teacherId: '',
-        courseWhichDays123: []
-      },
-      courseFormRules: {
-        courseName: [
+      // 教师编号
+      teacherId: '',
+      teacherCourseList: [],
+      teacherCourseForm: {},
+      teacherCourseFormRules: {
+        courseId: [
           {required: true, message: '请输入学生课程名称', trigger: 'blur'}
         ],
         clbumId: [
@@ -209,11 +218,11 @@ export default {
       /** 批量删除选中 */
       multipleSelection: [],
       /** 新增编辑状态区分 */
-      flag: false,
+      teacherCourseFlag: false,
       /** 下拉选择器禁用状态，默认为开启 */
       selectDisabled: false,
       /** 班级集合 */
-      courseClbums: [],
+      courseClbumList: [],
       /** 课程节数集合 */
       courseSections: [{
         value: '1-2节',
@@ -259,19 +268,11 @@ export default {
 
   created() {
     this.getCourseByUsernameInfo();
+    // 获取教师编号
+    this.getTeacherByUsername();
   },
 
   methods: {
-    toggleSelection(rows) {
-      if (rows) {
-        rows.forEach(row => {
-          this.$refs.multipleTable.toggleRowSelection(row);
-        });
-      } else {
-        this.$refs.multipleTable.clearSelection();
-      }
-    },
-
     /**
      * 勾线专业列表信息
      */
@@ -300,16 +301,16 @@ export default {
     /**
      * 重置对话框
      */
-    resetForm(courseForm) {
-      this.$refs[courseForm].resetFields();
-      this.courseForm = {};
+    resetForm(teacherCourseForm) {
+      this.$refs[teacherCourseForm].resetFields();
+      this.teacherCourseForm = {};
     },
 
     /**
      * 关闭对话框
      */
     handleClose() {
-      this.resetForm('courseForm');
+      this.resetForm('teacherCourseForm');
       this.dialogVisible = false;
     },
 
@@ -334,7 +335,7 @@ export default {
      * 获取当前用户所有课程信息
      */
     getCourseByUsernameInfo() {
-      this.$axios.get("/course/getCourseByUsernameInfo", {
+      this.$axios.get("/student/course/getCourseByUsernameInfo", {
         params: {
           courseName: this.searchForm.name,
           current: this.current,
@@ -350,27 +351,36 @@ export default {
 
     /**
      * 新增确认添加专业信息
-     * @param courseForm formName
+     * @param teacherCourseForm formName
      */
-    submitForm(courseForm) {
-      this.$refs[courseForm].validate((valid) => {
+    submitForm(teacherCourseForm) {
+      this.$refs[teacherCourseForm].validate((valid) => {
         if (valid) {
           // 判断startTime是否为一个对象，是则进行转换
-          if (this.courseForm.startTime instanceof Object) {
-            this.courseForm.startTime = formatDate(this.courseForm.startTime);
-            this.courseForm.endTime = formatDate(this.courseForm.endTime);
+          if (this.teacherCourseForm.startTime instanceof Object) {
+            this.teacherCourseForm.startTime = formatDate(this.teacherCourseForm.startTime);
+            this.teacherCourseForm.endTime = formatDate(this.teacherCourseForm.endTime);
           }
 
-          let courseWhichDay = this.courseForm.courseWhichDay;
+          let courseWhichDay = this.teacherCourseForm.courseWhichDay;
           let courseWhichDayStr = '';
-
           for (let i = 0; i < courseWhichDay.length; i++) {
             courseWhichDayStr += (i + 1) === courseWhichDay.length ? courseWhichDay[i] : courseWhichDay[i] + ',';
           }
+          this.teacherCourseForm.courseWhichDay = courseWhichDayStr;
 
-          this.courseForm.courseWhichDay = courseWhichDayStr;
+          let studentCourse = {
+            clbumId: this.teacherCourseForm.clbumId,
+            courseId: this.teacherCourseForm.courseId,
+            teacherId: this.teacherId,
+            courseSection: this.teacherCourseForm.courseSection,
+            courseWhichDay: courseWhichDayStr
+          };
 
-          this.$axios.post('/course/' + (this.flag ? 'update' : 'save'), this.courseForm)
+          console.log("studentCourse")
+          console.log(studentCourse)
+
+          this.$axios.post('/student/course/' + (this.teacherCourseFlag ? 'update' : 'save'), studentCourse)
               .then(res => {
                 this.$message({
                   showClose: true,
@@ -381,7 +391,7 @@ export default {
                   }
                 });
                 this.dialogVisible = false;
-                this.resetForm(courseForm);
+                this.resetForm(teacherCourseForm);
               });
           // 关闭弹出框
           this.dialogVisible = false;
@@ -392,61 +402,53 @@ export default {
       });
     },
 
-    /**
-     * 新增专业信息
-     */
+    /** 新增专业信息 */
     addHandle() {
       this.dialogVisible = true;
-      this.flag = false;
+      this.teacherCourseFlag = false;
       this.selectDisabled = false;
-      this.getClbumList();
-      this.getTeacherByUsername();
       this.getAdministratorAddCourse();
+      this.getTeacherCourseClbumList();
     },
 
-    /**
-     * 获取管理员添加的课程信息
-     */
+    /** 获取管理员添加的课程信息 */
     getAdministratorAddCourse() {
       this.$axios.get("/course/getAdministratorAddCourse").then(res => {
-        this.courseForm = res.data.data;
+        console.log("res.data.data")
+        console.log(res.data.data)
+        this.teacherCourseList = res.data.data;
       });
     },
 
-    /**
-     * 获取教师信息
-     */
+    /** 获取教师信息 */
     getTeacherByUsername() {
       this.$axios.get("/teacher/getTeacherByUsername").then(res => {
-        this.courseForm.teacherId = res.data.data.teacherId;
+        this.teacherId = res.data.data.teacherId;
       });
     },
 
-    /**
-     * 获取班级信息
-     */
-    getClbumList() {
+    /** 获取班级信息 */
+    getTeacherCourseClbumList() {
       this.$axios.get("/clbum/getClbumAll", ).then(res => {
-        this.courseClbums = res.data.data;
+        this.courseClbumList = res.data.data;
       });
     },
 
-    /**
-     * 编辑专业信息
-     */
-    editHandle: function (courseId) {
-      this.$axios.get('/course/info/' + courseId).then(res => {
-        this.courseForm = res.data.data;
+    /** 编辑专业信息 */
+    editHandle(courseId) {
+      this.$axios.get('/student/course/teacherCourseInfo/' + courseId).then(res => {
+        console.log(res.data.data);
+        this.teacherCourseForm = res.data.data;
         // 将得到的课程日期字符串转为数组类型
         let whichDays = res.data.data.courseWhichDay.split(",");
         let courseWhichDays = [];
         whichDays.forEach(data => {
           courseWhichDays.push(data);
         });
-        this.courseForm.courseWhichDay = courseWhichDays;
+        this.teacherCourseForm.courseWhichDay = courseWhichDays;
 
         this.dialogVisible = true;
-        this.flag = true;
+        this.teacherCourseFlag = true;
         this.selectDisabled = true;
       });
     },
@@ -470,7 +472,7 @@ export default {
           message: res.data.msg,
           type: 'success',
           onClose:() => {
-            this.getCourseByUsernameInfo()
+            this.getCourseByUsernameInfo();
           }
         });
       });

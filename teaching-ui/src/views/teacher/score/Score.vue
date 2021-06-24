@@ -5,20 +5,14 @@
         <el-input
             v-model="searchForm.name"
             placeholder="名称"
-            clearable
-        >
+            clearable>
         </el-input>
       </el-form-item>
-
       <el-form-item>
-        <el-button @click="getStudentCursorList">搜索</el-button>
-      </el-form-item>
-
-      <el-form-item>
-        <el-button type="primary" @click="addHandle">新增</el-button>
+        <el-button @click="getTeacherScoreStudentCourseList">搜索</el-button>
       </el-form-item>
       <el-form-item>
-        <el-popconfirm title="这是确定批量删除吗？" @confirm="delHandle(null)">
+        <el-popconfirm title="这是确定批量删除吗？" @confirm="teacherScoreDelHandle(null)">
           <el-button type="danger" slot="reference" :disabled="delBtlState">批量删除</el-button>
         </el-popconfirm>
       </el-form-item>
@@ -77,6 +71,7 @@
           <el-tag size="small" v-if="scope.row.score >= 90" type="success">优秀</el-tag>
           <el-tag size="small" v-else-if="scope.row.score >= 80" type="warning">良好</el-tag>
           <el-tag size="small" v-else-if="scope.row.score >= 60" type="info">合格</el-tag>
+          <el-tag size="small" v-else-if="scope.row.score === null" type="info">未更新</el-tag>
           <el-tag size="small" v-else type="danger">不合格</el-tag>
         </template>
       </el-table-column>
@@ -89,17 +84,16 @@
           prop="icon"
           label="操作">
         <template slot-scope="scope">
-            <el-button type="text" @click="editHandle(scope.row)">编辑</el-button>
+            <el-button type="text" @click="teacherScoreEditHandle(scope.row)">更新</el-button>
           <el-divider direction="vertical"></el-divider>
           <template>
-            <el-popconfirm title="确定要删除吗？" @confirm="delHandle(scope.row)">
+            <el-popconfirm title="确定要删除吗？" @confirm="teacherScoreDelHandle(scope.row)">
               <el-button type="text" slot="reference">删除</el-button>
             </el-popconfirm>
           </template>
         </template>
       </el-table-column>
     </el-table>
-
     <!-- 分页 -->
     <el-pagination
         @size-change="handleSizeChange"
@@ -110,54 +104,48 @@
         :page-size="size"
         :total="total">
     </el-pagination>
-
     <!-- 新增对话框 -->
     <el-dialog
         title="提示"
         :visible.sync="dialogVisible"
         width="600px"
         :before-close="handleClose">
-      <el-form :model="studentCourseForm" :rules="studentCourseFormRules" ref="studentCourseForm" label-width="100px"
+      <el-form :model="teacherStudentScoreForm" :rules="teacherStudentScoreFormRules" ref="teacherStudentScoreForm"
+               label-width="100px"
                class="demo-editForm">
-        <el-form-item label="课程" prop="teacherId" label-width="60px">
-          <el-select v-model="studentCourseForm.courseId" placeholder="请选择" :disabled="selectDisabled">
+        <el-form-item label="课程" prop="courseId" label-width="60px">
+          <el-select v-model="teacherStudentScoreForm.courseId" placeholder="请选择" :disabled="selectDisabled">
             <el-option
-                v-for="item in scoreCursorList"
-                :key="item.courseId"
-                :label="item.courseName"
-                :value="item.courseId">
+                :key="teacherStudentScoreForm.courseId"
+                :label="teacherStudentScoreForm.courseName"
+                :value="teacherStudentScoreForm.courseId">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="班级" prop="clbumId" label-width="60px">
-          <el-select v-model="studentCourseForm.clbumId" placeholder="请选择" :disabled="selectDisabled"
-                     @change="getStudentList(studentCourseForm.clbumId)">
+          <el-select v-model="teacherStudentScoreForm.clbumId" placeholder="请选择" :disabled="selectDisabled">
             <el-option
-                v-for="item in scoreClbumList"
-                :key="item.clbumId"
-                :label="item.clbumName"
-                :value="item.clbumId"
-            >
+                :key="teacherStudentScoreForm.clbumId"
+                :label="teacherStudentScoreForm.clbumName"
+                :value="teacherStudentScoreForm.clbumId">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="学号" prop="studentId" label-width="60px">
-          <el-select v-model="studentCourseForm.studentId" placeholder="请选择" :disabled="selectDisabled">
+          <el-select v-model="teacherStudentScoreForm.studentId" placeholder="请选择" :disabled="selectDisabled">
             <el-option
-                v-for="item in scoreStudentList"
-                :key="item.studentId"
-                :label="item.studentId"
-                :value="item.studentId">
+                :key="teacherStudentScoreForm.studentId"
+                :label="teacherStudentScoreForm.studentId"
+                :value="teacherStudentScoreForm.studentId">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="成绩" prop="score" label-width="60px">
-          <el-input v-model="studentCourseForm.score" autocomplete="off"></el-input>
+          <el-input v-model="teacherStudentScoreForm.score" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitForm('studentCourseForm')">
-            {{ this.flag ? '保存' : '创建' }}</el-button>
-          <el-button @click="resetForm('studentCourseForm')">重置</el-button>
+          <el-button type="primary" @click="submitForm('teacherStudentScoreForm')">保存</el-button>
+          <el-button @click="resetForm('teacherStudentScoreForm')">重置</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -185,11 +173,11 @@ export default {
       dialogVisible: false,
       /** 专业列表数据 */
       tableData: [],
-      studentCourseForm: {
+      teacherStudentScoreForm: {
         courseId: '',
         teacherId: ''
       },
-      studentCourseFormRules: {
+      teacherStudentScoreFormRules: {
         courseId: [
           {required: true, message: '请选择课程', trigger: 'blur'}
         ],
@@ -205,36 +193,16 @@ export default {
       },
       /** 批量删除选中 */
       multipleSelection: [],
-      /** 新增编辑状态区分 */
-      flag: false,
       /** 下拉选择器禁用状态，默认为开启 */
-      selectDisabled: true,
-      scoreCursorList: [],
-      cursorValue: '',
-
-      scoreClbumList: [],
-      clbumValue: '',
-
-      scoreStudentList: [],
-      studentValue: ''
+      selectDisabled: true
     }
   },
 
   created() {
-    this.getStudentCursorList();
+    this.getTeacherScoreStudentCourseList();
   },
 
   methods: {
-    toggleSelection(rows) {
-      if (rows) {
-        rows.forEach(row => {
-          this.$refs.multipleTable.toggleRowSelection(row);
-        });
-      } else {
-        this.$refs.multipleTable.clearSelection();
-      }
-    },
-
     /**
      * 勾线专业列表信息
      */
@@ -248,7 +216,7 @@ export default {
      */
     handleSizeChange(val) {
       this.size = val;
-      this.getStudentCursorList();
+      this.getTeacherScoreStudentCourseList();
     },
 
     /**
@@ -256,22 +224,22 @@ export default {
      */
     handleCurrentChange(val) {
       this.current = val;
-      this.getStudentCursorList();
+      this.getTeacherScoreStudentCourseList();
     },
 
     /**
      * 重置对话框
      */
-    resetForm(studentCourseForm) {
-      this.$refs[studentCourseForm].resetFields();
-      this.studentCourseForm = {};
+    resetForm(teacherStudentScoreForm) {
+      this.$refs[teacherStudentScoreForm].resetFields();
+      this.teacherStudentScoreForm = {};
     },
 
     /**
      * 关闭对话框
      */
     handleClose() {
-      this.resetForm('studentCourseForm');
+      this.resetForm('teacherStudentScoreForm');
       this.dialogVisible = false;
     },
 
@@ -295,7 +263,7 @@ export default {
     /**
      * 获取所有课程信息
      */
-    getStudentCursorList() {
+    getTeacherScoreStudentCourseList() {
       this.$axios.get("/student/course/list", {
         params: {
           studentName: this.searchForm.name,
@@ -304,36 +272,42 @@ export default {
         }
       }).then(res => {
         this.tableData = res.data.data.records;
+        this.total = res.data.data.total;
         this.size = res.data.data.size;
         this.current = res.data.data.current;
-        this.total = res.data.data.total;
       });
     },
 
     /**
      * 新增确认添加专业信息
-     * @param studentCourseForm formName
+     * @param teacherStudentScoreForm formName
      */
-    submitForm(studentCourseForm) {
-      this.$refs[studentCourseForm].validate((valid) => {
+    submitForm(teacherStudentScoreForm) {
+      this.$refs[teacherStudentScoreForm].validate((valid) => {
         if (valid) {
           // 判断teacherName是否为一个对象，是则进行转换
-          if (this.studentCourseForm.teacherName instanceof Object) {
-            this.studentCourseForm.teacherName = formatDate(this.studentCourseForm.teacherName);
+          if (this.teacherStudentScoreForm.teacherName instanceof Object) {
+            this.teacherStudentScoreForm.teacherName = formatDate(this.teacherStudentScoreForm.teacherName);
           }
 
-          this.$axios.post('/student/course/' + (this.flag ? 'update' : 'save'), this.studentCourseForm)
+          let studentCourse = {
+            studentId: this.teacherStudentScoreForm.studentId,
+            courseId: this.teacherStudentScoreForm.courseId,
+            score: this.teacherStudentScoreForm.score
+          };
+
+          this.$axios.post('/student/course/updateStudentCourseByScore', studentCourse)
               .then(res => {
                 this.$message({
                   showClose: true,
                   message: res.data.msg,
                   type: 'success',
                   onClose:() => {
-                    this.getStudentCursorList()
+                    this.getTeacherScoreStudentCourseList()
                   }
                 });
                 this.dialogVisible = false;
-                this.resetForm(studentCourseForm);
+                this.resetForm(teacherStudentScoreForm);
               });
           // 关闭弹出框
           this.dialogVisible = false;
@@ -345,68 +319,19 @@ export default {
     },
 
     /**
-     * 新增专业信息
+     * 编辑学生成绩信息
      */
-    addHandle() {
-      this.dialogVisible = true;
-      this.flag = false;
-      this.selectDisabled = false;
-      this.getCursorList();
-      this.getClbumList();
-    },
-
-    /**
-     * 获取课程信息
-     */
-    getCursorList() {
-      this.$axios.get("/course/getCourseAll", ).then(res => {
-        this.scoreCursorList = res.data.data;
-      });
-    },
-
-    /**
-     * 获取班级信息
-     */
-    getClbumList() {
-      this.$axios.get("/clbum/getClbumAll", ).then(res => {
-        this.scoreClbumList = res.data.data;
-      });
-    },
-
-    /**
-     * 获取学生信息
-     */
-    getStudentList(clbumId) {
-      this.$axios.get("/student/getStudentAllByClbumId/" + clbumId).then(res => {
-        this.scoreStudentList = res.data.data;
-      });
-
-      this.getTeacherByUsername();
-    },
-
-    /**
-     * 获取教师信息
-     */
-    getTeacherByUsername() {
-      this.$axios.get("/teacher/getTeacherByUsername").then(res => {
-        this.studentCourseForm.teacherId = res.data.data.teacherId;
-      });
-    },
-
-    /**
-     * 编辑专业信息
-     */
-    editHandle(studentCourse) {
+    teacherScoreEditHandle(studentCourse) {
       this.$axios.get('/student/course/info', {
         params: {
           courseId: studentCourse.courseId,
-          studentId: studentCourse.studentId,
-          score: studentCourse.score
+          studentId: studentCourse.studentId
         }
       }).then(res => {
-        this.studentCourseForm = res.data.data;
+        this.teacherStudentScoreForm = res.data.data;
+        console.log("res.data.data");
+        console.log(res.data.data);
         this.dialogVisible = true;
-        this.flag = true;
         this.selectDisabled = true;
       });
     },
@@ -416,7 +341,7 @@ export default {
      *
      * @param studentCourse 学号
      */
-    delHandle(studentCourse) {
+    teacherScoreDelHandle(studentCourse) {
       let courseIds = [];
       let studentIds = [];
       if (studentCourse) {
@@ -444,7 +369,7 @@ export default {
           message: res.data.msg,
           type: 'success',
           onClose:() => {
-            this.getStudentCursorList()
+            this.getTeacherScoreStudentCourseList()
           }
         });
       });

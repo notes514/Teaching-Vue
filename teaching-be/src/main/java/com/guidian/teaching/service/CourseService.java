@@ -2,6 +2,7 @@ package com.guidian.teaching.service;
 
 import com.guidian.teaching.entity.Course;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -50,4 +51,14 @@ public interface CourseService extends IService<Course> {
      * @return java.util.List<com.guidian.teaching.entity.Course>
      */
     List<Course> getElectiveCourse();
+
+    /**
+     * 根据当前学生获取未选修的选修课信息
+     *
+     * @author dhxstart
+     * @date 2021/6/24 22:45
+     * @param courseIds 已选择课程编号集合
+     * @return java.util.List<com.guidian.teaching.entity.Course>
+     */
+    List<Course> getCurrentStudentNoCourses(List<String> courseIds);
 }

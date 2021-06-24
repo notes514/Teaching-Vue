@@ -5,15 +5,12 @@
         <el-input
             v-model="searchForm.name"
             placeholder="名称"
-            clearable
-        >
+            clearable>
         </el-input>
       </el-form-item>
-
       <el-form-item>
         <el-button @click="getStudentList">搜索</el-button>
       </el-form-item>
-
       <el-form-item>
         <el-button type="primary" @click="addHandle">新增</el-button>
       </el-form-item>
@@ -94,7 +91,6 @@
         </template>
       </el-table-column>
     </el-table>
-
     <!-- 分页 -->
     <el-pagination
         @size-change="handleSizeChange"
@@ -105,7 +101,6 @@
         :page-size="size"
         :total="total">
     </el-pagination>
-
     <!-- 新增对话框 -->
     <el-dialog
         title="提示"
@@ -207,16 +202,6 @@ export default {
   },
 
   methods: {
-    toggleSelection(rows) {
-      if (rows) {
-        rows.forEach(row => {
-          this.$refs.multipleTable.toggleRowSelection(row);
-        });
-      } else {
-        this.$refs.multipleTable.clearSelection();
-      }
-    },
-
     /**
      * 勾线专业列表信息
      */

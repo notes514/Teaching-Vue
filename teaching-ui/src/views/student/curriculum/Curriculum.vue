@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-table
-        :data="tableData"
+        :data="studentCurriculumData"
         :header-cell-style="{textAlign: 'center'}"
         :cell-style="{textAlign: 'center', height: '90px'}"
         border
@@ -49,7 +49,7 @@ export default {
   name: "Curriculum",
   data() {
     return {
-      tableData: []
+      studentCurriculumData: []
     };
   },
   created() {
@@ -60,8 +60,8 @@ export default {
      * 获取课程信息
      */
     getCurriculumInfo() {
-      this.$axios.get("/course/getCurriculumInfo").then(res => {
-        this.tableData = res.data.data;
+      this.$axios.get("/student/course/getCurriculumInfo").then(res => {
+        this.studentCurriculumData = res.data.data;
       });
     }
   }

@@ -39,4 +39,9 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     public List<Course> getElectiveCourse() {
         return courseMapper.getElectiveCourse();
     }
+
+    @Override
+    public List<Course> getCurrentStudentNoCourses(List<String> courseIds) {
+        return courseMapper.getCurrentStudentNoCourses(courseIds);
+    }
 }

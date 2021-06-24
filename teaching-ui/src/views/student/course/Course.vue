@@ -5,15 +5,12 @@
         <el-input
             v-model="searchForm.name"
             placeholder="请输入课程名称"
-            clearable
-        >
+            clearable>
         </el-input>
       </el-form-item>
-
       <el-form-item>
-        <el-button @click="getCourseByUsernameInfo">搜索</el-button>
+        <el-button @click="getCurrentElectiveInfo">搜索</el-button>
       </el-form-item>
-
       <el-form-item>
         <el-button type="primary" @click="addHandle">选课</el-button>
       </el-form-item>
@@ -22,7 +19,7 @@
     <el-table
         ref="multipleTable"
         style="width: 100%;"
-        :data="tableData"
+        :data="studentCourseData"
         :row-style="{height: '34px'}"
         :header-cell-style="{textAlign: 'center', height: '34px'}"
         :cell-style="{textAlign: 'center', padding: '1px'}"
@@ -51,6 +48,15 @@
           label="课程学分">
       </el-table-column>
       <el-table-column
+          prop="courseCategory"
+          label="课程类别"
+          width="100">
+        <template slot-scope="scope">
+          <span v-if="scope.row.courseCategory === 0">必修</span>
+          <span v-else>选修</span>
+        </template>
+      </el-table-column>
+      <el-table-column
           prop="startTime"
           label="开课时间"
           :formatter="dateFormatter">
@@ -73,7 +79,6 @@
         </template>
       </el-table-column>
     </el-table>
-
     <!-- 分页 -->
     <el-pagination
         @size-change="handleSizeChange"
@@ -84,7 +89,6 @@
         :page-size="size"
         :total="total">
     </el-pagination>
-
     <!-- 新增对话框 -->
     <el-dialog
         title="请选择课程"
@@ -137,10 +141,10 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-form :model="courseForm" :rules="courseFormRules" ref="courseForm" class="demo-editForm">
+      <el-form :model="studentCourseForm" ref="studentCourseForm" class="demo-editForm">
         <el-form-item>
-          <el-button type="primary" @click="submitForm('courseForm')">{{ this.flag ? '保存' : '确定' }}</el-button>
-          <el-button @click="resetForm('courseForm')">重置</el-button>
+          <el-button type="primary" @click="submitForm('studentCourseForm')">{{ this.studentCourseFlag ? '保存' : '确定' }}</el-button>
+          <el-button @click="resetForm('studentCourseForm')">重置</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -166,48 +170,19 @@ export default {
       /** 新增编辑弹出框显示状态（默认不显示） */
       dialogVisible: false,
       /** 专业列表数据 */
-      tableData: [{
+      studentCourseData: [{
         selectedState: false
       }],
       tableElectiveCourse: [{
         selectedState: false
       }],
-      courseForm: {
+      studentCourseForm: {
         teacherId: ''
-      },
-      courseFormRules: {
-        courseId: [
-          {required: true, message: '请输入课程编号', trigger: 'blur'}
-        ],
-        courseName: [
-          {required: true, message: '请输入学生课程名称', trigger: 'blur'}
-        ],
-        courseCredit: [
-          {required: true, message: '请输入课程学分', trigger: 'blur'}
-        ],
-        courseHours: [
-          {required: true, message: '请输入课程学时', trigger: 'blur'}
-        ],
-        clbumId: [
-          {required: true, message: '请选择班级', trigger: 'blur'}
-        ],
-        courseSection: [
-          {required: true, message: '请选择课程节数', trigger: 'blur'}
-        ],
-        courseWhichDay: [
-          {required: true, message: '请选择课程周天', trigger: 'blur'}
-        ],
-        startTime: [
-          {required: true, message: '请选择开课时间', trigger: 'blur'}
-        ],
-        endTime: [
-          {required: true, message: '请选择结课时间', trigger: 'blur'}
-        ]
       },
       /** 批量删除选中 */
       multipleSelection: [],
       /** 新增编辑状态区分 */
-      flag: false,
+      studentCourseFlag: false,
       /** 班级集合 */
       courseClbums: [],
       /** 课程节数集合 */
@@ -256,20 +231,10 @@ export default {
   },
 
   created() {
-    this.getCourseByUsernameInfo();
+    this.getCurrentElectiveInfo();
   },
 
   methods: {
-    toggleSelection(rows) {
-      if (rows) {
-        rows.forEach(row => {
-          this.$refs.multipleTable.toggleRowSelection(row);
-        });
-      } else {
-        this.$refs.multipleTable.clearSelection();
-      }
-    },
-
     /**
      * 勾线专业列表信息
      */
@@ -284,7 +249,7 @@ export default {
      */
     handleSizeChange(val) {
       this.size = val;
-      this.getCourseByUsernameInfo();
+      this.getCurrentElectiveInfo();
     },
 
     /**
@@ -292,22 +257,22 @@ export default {
      */
     handleCurrentChange(val) {
       this.current = val;
-      this.getCourseByUsernameInfo();
+      this.getCurrentElectiveInfo();
     },
 
     /**
      * 重置对话框
      */
-    resetForm(courseForm) {
-      this.$refs[courseForm].resetFields();
-      this.courseForm = {};
+    resetForm(studentCourseForm) {
+      this.$refs[studentCourseForm].resetFields();
+      this.studentCourseForm = {};
     },
 
     /**
      * 关闭对话框
      */
     handleClose() {
-      this.resetForm('courseForm');
+      this.resetForm('studentCourseForm');
       this.dialogVisible = false;
     },
 
@@ -339,15 +304,15 @@ export default {
     /**
      * 获取所有课程信息
      */
-    getCourseByUsernameInfo() {
-      this.$axios.get("/course/getCourseByUsernameInfo", {
+    getCurrentElectiveInfo() {
+      this.$axios.get("/student/course/getCurrentElectiveInfo", {
         params: {
           courseName: this.searchForm.name,
           current: this.current,
           size: this.size
         }
       }).then(res => {
-        this.tableData = res.data.data.records;
+        this.studentCourseData = res.data.data.records;
         this.size = res.data.data.size;
         this.current = res.data.data.current;
         this.total = res.data.data.total;
@@ -356,10 +321,10 @@ export default {
 
     /**
      * 新增确认添加专业信息
-     * @param courseForm formName
+     * @param studentCourseForm formName
      */
-    submitForm(courseForm) {
-      this.$refs[courseForm].validate((valid) => {
+    submitForm(studentCourseForm) {
+      this.$refs[studentCourseForm].validate((valid) => {
         if (valid) {
           if (this.courses.length <= 0) {
             this.$message({
@@ -370,22 +335,18 @@ export default {
             return ;
           }
 
-          this.courses.forEach(courseId => {
-
-          });
-
-          this.$axios.post('/course/' + (this.flag ? 'update' : 'save'), this.courseForm)
+          this.$axios.post('/course/' + (this.studentCourseFlag ? 'update' : 'save'), this.studentCourseForm)
               .then(res => {
                 this.$message({
                   showClose: true,
                   message: res.data.msg,
                   type: 'success',
                   onClose:() => {
-                    this.getCourseByUsernameInfo()
+                    this.getCurrentElectiveInfo()
                   }
                 });
                 this.dialogVisible = false;
-                this.resetForm(courseForm);
+                this.resetForm(studentCourseForm);
               });
           // 关闭弹出框
           this.dialogVisible = false;
@@ -401,15 +362,15 @@ export default {
      */
     addHandle() {
       this.dialogVisible = true;
-      this.flag = false;
-      this.getElectiveCourse();
+      this.studentCourseFlag = false;
+      this.getCurrentStudentNoCoursesInfo();
     },
 
     /**
      * 获取课程表中课程类型为选修课的多条记录
      */
-    getElectiveCourse() {
-      this.$axios.get("/course/getElectiveCourse", ).then(res => {
+    getCurrentStudentNoCoursesInfo() {
+      this.$axios.get("/student/course/getCurrentStudentNoCoursesInfo", ).then(res => {
         this.tableElectiveCourse = res.data.data.records;
         this.size = res.data.data.size;
         this.current = res.data.data.current;
@@ -422,9 +383,9 @@ export default {
      */
     editHandle(courseId) {
       this.$axios.get('/course/info/' + courseId).then(res => {
-        this.courseForm = res.data.data;
+        this.studentCourseForm = res.data.data;
         this.dialogVisible = true;
-        this.flag = true;
+        this.studentCourseFlag = true;
       });
     },
 
@@ -447,7 +408,7 @@ export default {
           message: res.data.msg,
           type: 'success',
           onClose:() => {
-            this.getCourseByUsernameInfo()
+            this.getCurrentElectiveInfo()
           }
         });
       });

@@ -26,4 +26,24 @@ public class StudentCourseServiceImpl extends ServiceImpl<StudentCourseMapper, S
         map.put("studentIds", studentIds);
         return studentCourseMapper.deleteStudentCourseByCourseIdsAndStudentIds(map);
     }
+
+    @Override
+    public StudentCourse getTeacherNotRepeating(String courseId, String teacherId) {
+        return studentCourseMapper.getTeacherNotRepeating(courseId, teacherId);
+    }
+
+    @Override
+    public StudentCourse getStudentNotRepeating(String courseId, String studentId) {
+        return studentCourseMapper.getStudentNotRepeating(courseId, studentId);
+    }
+
+    @Override
+    public StudentCourse getStudentCourseByStudentIdAndCourseId(String studentId, String courseId) {
+        return studentCourseMapper.getStudentCourseByStudentIdAndCourseId(studentId, courseId);
+    }
+
+    @Override
+    public List<StudentCourse> getStudentIdNotRepeating(String teacherId) {
+        return studentCourseMapper.getStudentIdNotRepeating(teacherId);
+    }
 }

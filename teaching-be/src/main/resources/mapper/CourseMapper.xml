@@ -18,15 +18,7 @@
     </select>
 
     <select id="getAdministratorAddCourse" resultType="com.guidian.teaching.entity.Course">
-        SELECT * FROM `tb_course`
-        <where>
-            <if test="teacher_id == null">
-                `teacher_id` IS NULL
-            </if>
-            <if test="clbum_id == null">
-                AND `clbum_id` IS NULL
-            </if>
-        </where>
+        SELECT * FROM `tb_course`;
     </select>
 
     <select id="getCourseAllByCourseId" parameterType="list" resultType="com.guidian.teaching.entity.Course">
@@ -48,6 +40,16 @@
                 AND `clbum_id` IS NULL
             </if>
             AND `course_category` = '1';
+        </where>
+    </select>
+
+    <select id="getCurrentStudentNoCourses" resultType="com.guidian.teaching.entity.Course">
+        SELECT * FROM tb_course
+        <where>
+            <foreach collection="courseIds" item="courseId" open="(" separator="," close=")">
+                course_id NOT IN (#{courseId})
+            </foreach>
+            AND `course_category` = 1;
         </where>
     </select>
 </mapper>

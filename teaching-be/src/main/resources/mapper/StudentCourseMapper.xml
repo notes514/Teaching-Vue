@@ -14,4 +14,45 @@
             </foreach>
         </where>
     </delete>
+
+    <update id="updateCurrentStudentCourseByScore">
+        UPDATE `tb_student_course` SET `score` = #{score} WHERE `student_id` = #{studentId} AND `course_id` = #{courseId};
+    </update>
+
+    <select id="getStudentCourseByStudentIdIsNull" resultType="com.guidian.teaching.entity.StudentCourse">
+        SELECT * FROM tb_student_course WHERE `student_id` IS NULL;
+    </select>
+
+    <select id="isStudentCourseElective" resultType="java.lang.Boolean">
+        SELECT * FROM tb_student_course
+        <where>
+            <if test="student_id != null">
+                `student_id` = #{studentId}
+            </if>
+            AND `course_id` NOT IN
+            <foreach collection="courseIds" item="courseId" open="(" separator="," close=")">
+                #{courseId}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="getCurrentStudentSelectedCourse" resultType="com.guidian.teaching.entity.StudentCourse">
+        SELECT s.student_id, s.course_id, s.teacher_id, s.score, s.course_section, s.course_which_day,
+               s.create_time, s.update_time
+        FROM tb_student_course AS s, tb_course AS c
+        WHERE s.student_id = #{studentId}
+          AND s.course_id = c.course_id
+          AND c.course_category = '1';
+    </select>
+
+    <select id="isExistStudentNoNullAndCourseId" resultType="com.guidian.teaching.entity.StudentCourse">
+        SELECT * FROM `tb_student_course`
+        <where>
+            `student_id` IS NOT NULL
+            AND `course_id` IN
+            <foreach collection="courseIds" item="courseId" open="(" separator="," close=")">
+                #{courseId}
+            </foreach>
+        </where>
+    </select>
 </mapper>

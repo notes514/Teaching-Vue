@@ -17,7 +17,6 @@ import lombok.EqualsAndHashCode;
 public class StudentCourse extends BaseEntity {
     private static final long serialVersionUID = 1L;
     /** 学号 */
-    @TableId
     private String studentId;
     /** 课程编号 */
     private String courseId;

@@ -38,6 +38,30 @@ public class StudentCourseController extends BaseController {
     }
 
     /**
+     * 此方法用于学生选课时的插入操作
+     * @author dhxstart
+     * @date 2021/6/26 17:52
+     * @param electiveList 学生课程实体集合
+     * @return com.guidian.teaching.common.lang.BaseResult
+     */
+    @PostMapping("/saveStudentSelection")
+    public BaseResult saveStudentSelection(@Validated @RequestBody List<Elective> electiveList) {
+        electiveList.forEach(elective -> {
+            StudentCourse studentCourse = new StudentCourse();
+            studentCourse.setStudentId(elective.getStudentId());
+            studentCourse.setCourseId(elective.getCourseId());
+            studentCourse.setTeacherId(elective.getTeacherId());
+            studentCourse.setScore(null);
+            studentCourse.setCourseSection(elective.getCourseSection());
+            studentCourse.setCourseWhichDay(elective.getCourseWhichDay());
+            studentCourse.setCreateTime(LocalDateTime.now());
+
+            studentCourseService.save(studentCourse);
+        });
+        return BaseResult.success(getCode(true), getMsg(true, "选课"), null);
+    }
+
+    /**
      * 删除学生课程信息
      *
      * @author dhxstart
@@ -52,6 +76,24 @@ public class StudentCourseController extends BaseController {
 
         boolean flag = studentCourseService.removeStudentCourseByCourseIdsAndStudentIds(courseIdArr, studentIdArr);
         return BaseResult.success(getCode(flag), getMsg(flag, "删除"), null);
+    }
+
+    /**
+     * 此方法用于学生对选修课进行退课操作
+     * @author dhxstart
+     * @date 2021/6/26 22:35
+     * @param principal principal
+     * @param courseId 课程编号
+     * @return com.guidian.teaching.common.lang.BaseResult
+     */
+    @PostMapping("/dropOut/{courseId}")
+    public BaseResult dropOut(Principal principal, @PathVariable(name = "courseId") String courseId) {
+        User user = userService.getByUsername(principal.getName());
+        boolean removeFlag = studentCourseService.remove(new QueryWrapper<StudentCourse>()
+                .eq("student_id", user.getUserId())
+                .eq("course_id", courseId));
+
+        return BaseResult.success(getCode(removeFlag), getMsg(removeFlag, "课程退选"), null);
     }
 
     /**
@@ -202,17 +244,19 @@ public class StudentCourseController extends BaseController {
             Student studentOne = studentService.getOne(new QueryWrapper<Student>().eq("student_id", item.getStudentId()));
             Course courseOne = courseService.getOne(new QueryWrapper<Course>().eq("course_id", item.getCourseId()));
 
-            StudentCourseDto studentCourseDto = new StudentCourseDto();
-            studentCourseDto.setStudentId(studentOne.getStudentId());
-            studentCourseDto.setStudentName(studentOne.getStudentName());
-            studentCourseDto.setGender(studentOne.getGender());
-            studentCourseDto.setClbumId(studentOne.getClbumId());
-            studentCourseDto.setCourseId(courseOne.getCourseId());
-            studentCourseDto.setCourseName(courseOne.getCourseName());
-            studentCourseDto.setScore(item.getScore());
-            studentCourseDto.setUpdateTime(item.getUpdateTime());
+            if (studentOne != null) {
+                StudentCourseDto studentCourseDto = new StudentCourseDto();
+                studentCourseDto.setStudentId(studentOne.getStudentId());
+                studentCourseDto.setStudentName(studentOne.getStudentName());
+                studentCourseDto.setGender(studentOne.getGender());
+                studentCourseDto.setClbumId(studentOne.getClbumId());
+                studentCourseDto.setCourseId(courseOne.getCourseId());
+                studentCourseDto.setCourseName(courseOne.getCourseName());
+                studentCourseDto.setScore(item.getScore());
+                studentCourseDto.setUpdateTime(item.getUpdateTime());
 
-            studentCourseDtoList.add(studentCourseDto);
+                studentCourseDtoList.add(studentCourseDto);
+            }
         });
 
         Page page = new Page<StudentCourseDto>();
@@ -260,24 +304,23 @@ public class StudentCourseController extends BaseController {
     @GetMapping("/getCurrentStudentNoCoursesInfo")
     public BaseResult getCurrentStudentNoCoursesInfo(Principal principal) {
         User user = userService.getByUsername(principal.getName());
-        List<StudentCourse> studentCourses = studentCourseService.list(
-                new QueryWrapper<StudentCourse>().eq("student_id", user.getUserId()));
-
+        List<StudentCourse> studentCourses = studentCourseService.getCurrentStudentSelectedCourse(user.getUserId());
         List<String> courseIds = new ArrayList<>();
         studentCourses.forEach(studentCourse -> {
             courseIds.add(studentCourse.getCourseId());
         });
 
-        System.out.println("courseIds：" + courseIds);
-
-        List<Course> courseList = courseService.getCurrentStudentNoCourses(courseIds);
+        List<Elective> electiveList = courseService.getCurrentStudentNoSelectElectives(courseIds);
+        for (int i = 0; i < electiveList.size(); i++) {
+            electiveList.get(i).setStudentId(user.getUserId());
+        }
 
         Page page = new Page<StudentCourseDto>();
         page.setCurrent(1);
         page.setSize(8);
-        page.setTotal(courseList.size());
-        page.setRecords(courseList);
-        return BaseResult.success(null);
+        page.setTotal(electiveList.size());
+        page.setRecords(electiveList);
+        return BaseResult.success(page);
     }
 
     /**
@@ -382,11 +425,7 @@ public class StudentCourseController extends BaseController {
         String courseId = map.get("courseId");
         Integer score = Integer.parseInt(map.get("score"));
 
-        StudentCourse studentCourse = studentCourseService.getStudentCourseByStudentIdAndCourseId(studentId, courseId);
-        studentCourse.setScore(score);
-        studentCourse.setUpdateTime(LocalDateTime.now());
-
-        boolean flag = studentCourseService.updateById(studentCourse);
+        boolean flag = studentCourseService.updateCurrentStudentCourseByScore(studentId, courseId, score);
         return BaseResult.success(getCode(flag), getMsg(flag, "更新"), null);
     }
 

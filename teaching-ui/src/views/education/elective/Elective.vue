@@ -24,7 +24,7 @@
     <el-table
         ref="multipleTable"
         style="width: 100%;"
-        :data="tableData"
+        :data="educationElectiveData"
         :row-style="{height: '34px'}"
         :header-cell-style="{textAlign: 'center', height: '34px'}"
         :cell-style="{textAlign: 'center', padding: '1px'}"
@@ -96,7 +96,6 @@
         </template>
       </el-table-column>
     </el-table>
-
     <!-- 分页 -->
     <el-pagination
         @size-change="handleSizeChange"
@@ -107,30 +106,60 @@
         :page-size="size"
         :total="total">
     </el-pagination>
-
     <!-- 新增对话框 -->
     <el-dialog
         title="提示"
         :visible.sync="dialogVisible"
         width="600px"
         :before-close="handleClose">
-      <el-form :model="studentForm" :rules="studentFormRules" ref="studentForm" label-width="100px" class="demo-editForm">
+      <el-form :model="educationElectiveForm" :rules="educationElectiveFormRules" ref="educationElectiveForm" label-width="100px" class="demo-editForm">
         <el-form-item label="课程编号" prop="courseId" label-width="120px">
-          <el-input v-model="studentForm.courseId" autocomplete="off"></el-input>
+          <el-input v-model="educationElectiveForm.courseId" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="课程名称" prop="courseName" label-width="120px">
-          <el-input v-model="studentForm.courseName" autocomplete="off"></el-input>
+          <el-input v-model="educationElectiveForm.courseName" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="课程学分" prop="courseCredit" label-width="120px">
-          <el-input v-model="studentForm.courseCredit" autocomplete="off"></el-input>
+          <el-input v-model="educationElectiveForm.courseCredit" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="课程学时" prop="courseHours" label-width="120px">
-          <el-input v-model="studentForm.courseHours" autocomplete="off"></el-input>
+          <el-input v-model="educationElectiveForm.courseHours" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="课程类别" prop="courseCategory" label-width="120px">
-          <el-select v-model="studentForm.courseCategory" placeholder="请选择课程类别 ">
+        <el-form-item label="开课学院" prop="academyId" label-width="120px">
+          <el-select v-model="educationElectiveForm.academyId" placeholder="请选择课程类别"
+                     @change="test(educationElectiveForm.academyId)">
             <el-option
-                v-for="item in courseCategorys"
+                v-for="item in academyList"
+                :key="item.academyId"
+                :label="item.academyName"
+                :value="item.academyId">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="科任教师" prop="teacherId" label-width="120px">
+          <el-select v-model="educationElectiveForm.teacherId" placeholder="请选择课程类别 ">
+            <el-option
+                v-for="item in teacherList"
+                :key="item.teacherId"
+                :label="item.teacherName"
+                :value="item.teacherId">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="上课时间" prop="courseSection" label-width="120px">
+          <el-select v-model="educationElectiveForm.courseSection" placeholder="请选择上课时间">
+            <el-option
+                v-for="item in courseSections"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="课程周天" prop="courseWhichDay" label-width="120px">
+          <el-select v-model="educationElectiveForm.courseWhichDay" multiple placeholder="请选择周天">
+            <el-option
+                v-for="item in courseWhichDays"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value">
@@ -139,7 +168,7 @@
         </el-form-item>
         <el-form-item label="开课时间" prop="startTime" label-width="120px">
           <el-date-picker
-              v-model="studentForm.startTime"
+              v-model="educationElectiveForm.startTime"
               type="date"
               format="yyyy-MM-dd"
               size="large"
@@ -148,7 +177,7 @@
         </el-form-item>
         <el-form-item label="结课时间" prop="endTime" label-width="120px">
           <el-date-picker
-              v-model="studentForm.endTime"
+              v-model="educationElectiveForm.endTime"
               type="date"
               format="yyyy-MM-dd"
               size="large"
@@ -156,8 +185,8 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitForm('studentForm')">{{ this.flag ? '保存' : '创建' }}</el-button>
-          <el-button @click="resetForm('studentForm')">重置</el-button>
+          <el-button type="primary" @click="submitForm('educationElectiveForm')">{{ this.flag ? '保存' : '创建' }}</el-button>
+          <el-button @click="resetForm('educationElectiveForm')">重置</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -168,7 +197,7 @@
 import {formatDate} from '@/util/LocalDateUtils'
 
 export default {
-  name: "Course",
+  name: "Elective",
   data() {
     return {
       /** 搜索栏 */
@@ -184,10 +213,10 @@ export default {
       /** 新增编辑弹出框显示状态（默认不显示） */
       dialogVisible: false,
       /** 专业列表数据 */
-      tableData: [],
-      studentForm: {
+      educationElectiveData: [],
+      educationElectiveForm: {
       },
-      studentFormRules: {
+      educationElectiveFormRules: {
         courseId: [
           {required: true, message: '请输入课程编号', trigger: 'blur'}
         ],
@@ -200,8 +229,17 @@ export default {
         courseHours: [
           {required: true, message: '请输入课程学时', trigger: 'blur'}
         ],
-        courseCategory: [
-          {required: true, message: '请选择课程类别', trigger: 'blur'}
+        academyId: [
+          {required: true, message: '请选择开课学院', trigger: 'blur'}
+        ],
+        teacherId: [
+          {required: true, message: '请选择科任教师', trigger: 'blur'}
+        ],
+        courseSection: [
+          {required: true, message: '请选择上课时间', trigger: 'blur'}
+        ],
+        courseWhichDay: [
+          {required: true, message: '请选择课程周天', trigger: 'blur'}
         ],
         startTime: [
           {required: true, message: '请选择开课时间', trigger: 'blur'}
@@ -210,27 +248,59 @@ export default {
           {required: true, message: '请选择结课时间', trigger: 'blur'}
         ]
       },
-      /** 课程类别 */
-      courseCategorys:[{
-        value: '0',
-        label: '必修'
-      }, {
-        value: '1',
-        label: '选修'
-      }],
       /** 批量删除选中 */
       multipleSelection: [],
       /** 新增编辑状态区分 */
-      flag: false
+      flag: false,
+      // 学院集合
+      academyList: [],
+      // 教师集合
+      teacherList: [],
+      // 课程节数集合
+      courseSections: [{
+        value: '1-2节',
+        label: '1-2节'
+      }, {
+        value: '3-4节',
+        label: '3-4节'
+      }, {
+        value: '5-6节',
+        label: '5-6节'
+      }, {
+        value: '7-8节',
+        label: '7-8节'
+      }, {
+        value: '9-10节',
+        label: '9-10节'
+      }],
+      // 课程周天集合
+      courseWhichDays: [{
+        value: '1',
+        label: '星期一'
+      }, {
+        value: '2',
+        label: '星期二'
+      }, {
+        value: '3',
+        label: '星期三'
+      }, {
+        value: '4',
+        label: '星期四'
+      }, {
+        value: '5',
+        label: '星期五'
+      }, {
+        value: '6',
+        label: '星期六'
+      }, {
+        value: '7',
+        label: '星期日'
+      }]
     }
   },
 
   created() {
     this.getCourseList();
-  },
-
-  computed: {
-
   },
 
   methods: {
@@ -262,16 +332,16 @@ export default {
     /**
      * 重置对话框
      */
-    resetForm(studentForm) {
-      this.$refs[studentForm].resetFields();
-      this.studentForm = {};
+    resetForm(educationElectiveForm) {
+      this.$refs[educationElectiveForm].resetFields();
+      this.educationElectiveForm = {};
     },
 
     /**
      * 关闭对话框
      */
     handleClose() {
-      this.resetForm('studentForm');
+      this.resetForm('educationElectiveForm');
       this.dialogVisible = false;
     },
 
@@ -296,14 +366,14 @@ export default {
      * 获取所有专业信息
      */
     getCourseList() {
-      this.$axios.get("/course/list", {
+      this.$axios.get("/course/list/1", {
         params: {
           courseName: this.searchForm.name,
           current: this.current,
           size: this.size
         }
       }).then(res => {
-        this.tableData = res.data.data.records;
+        this.educationElectiveData = res.data.data.records;
         this.size = res.data.data.size;
         this.current = res.data.data.current;
         this.total = res.data.data.total;
@@ -312,17 +382,25 @@ export default {
 
     /**
      * 新增确认添加专业信息
-     * @param studentForm formName
+     * @param educationElectiveForm formName
      */
-    submitForm(studentForm) {
-      this.$refs[studentForm].validate((valid) => {
+    submitForm(educationElectiveForm) {
+      this.$refs[educationElectiveForm].validate((valid) => {
         if (valid) {
           // 判断startTime是否为一个对象，是则进行转换
-          if (this.studentForm.startTime instanceof Object) {
-            this.studentForm.startTime = formatDate(this.studentForm.startTime);
-            this.studentForm.endTime = formatDate(this.studentForm.endTime);
+          if (this.educationElectiveForm.startTime instanceof Object) {
+            this.educationElectiveForm.startTime = formatDate(this.educationElectiveForm.startTime);
+            this.educationElectiveForm.endTime = formatDate(this.educationElectiveForm.endTime);
           }
-          this.$axios.post('/course/' + (this.flag ? 'update' : 'save'), this.studentForm)
+
+          let courseWhichDay = this.educationElectiveForm.courseWhichDay;
+          let courseWhichDayStr = '';
+          for (let i = 0; i < courseWhichDay.length; i++) {
+            courseWhichDayStr += (i + 1) === courseWhichDay.length ? courseWhichDay[i] : courseWhichDay[i] + ',';
+          }
+          this.educationElectiveForm.courseWhichDay = courseWhichDayStr;
+          // 请求网络
+          this.$axios.post('/course/' + (this.flag ? 'update' : 'saveElective'), this.educationElectiveForm)
               .then(res => {
                 this.$message({
                   showClose: true,
@@ -333,7 +411,7 @@ export default {
                   }
                 });
                 this.dialogVisible = false;
-                this.resetForm(studentForm);
+                this.resetForm(educationElectiveForm);
               });
           // 关闭弹出框
           this.dialogVisible = false;
@@ -350,6 +428,32 @@ export default {
     addHandle() {
       this.dialogVisible = true;
       this.flag = false;
+      this.getAcademyAll();
+    },
+
+    /**
+     * 获取所有学院信息
+     */
+    getAcademyAll() {
+      this.$axios.get("/academy/list").then(res => {
+          this.academyList = res.data.data.records;
+      });
+    },
+
+    test(academyId) {
+      console.log("执行了！！！");
+      console.log(academyId);
+
+      this.getAcademyIdByTeacherAll(academyId);
+    },
+
+    /**
+     * 根据学院代码获取教师集合
+     */
+    getAcademyIdByTeacherAll(academyId) {
+      this.$axios.get("/teacher/getAcademyIdByTeacherAll/" + academyId).then(res => {
+        this.teacherList = res.data.data;
+      });
     },
 
     /**
@@ -357,7 +461,7 @@ export default {
      */
     editHandle(courseId) {
       this.$axios.get('/course/info/' + courseId).then(res => {
-        this.studentForm = res.data.data;
+        this.educationElectiveForm = res.data.data;
         this.dialogVisible = true;
         this.flag = true;
       });
@@ -376,7 +480,7 @@ export default {
           courseIds.push(row.courseId);
         });
       }
-      this.$axios.post("/course/delete", courseIds).then(res => {
+      this.$axios.post("/course/deleteElective", courseIds).then(res => {
         this.$message({
           showClose: true,
           message: res.data.msg,

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -25,33 +26,113 @@ import java.util.*;
 public class CourseController extends BaseController {
 
     /**
-     * @Description 添加课程信息
+     * @Description 添加必修课程
      * @author dhxstart
      * @date 2021/6/16 17:23
      * @param course 课程实体
      * @return com.guidian.teaching.common.lang.BaseResult
      */
-    @PostMapping("/save")
-    public BaseResult saveCourse(@Validated @RequestBody Course course) {
+    @PostMapping("/saveCompulsory")
+    public BaseResult saveCompulsoryCourse(@Validated @RequestBody Course course) {
         Course courseObj = courseService.getById(course.getCourseId());
         if (courseObj != null) {
-            return BaseResult.failure("该课程编号已存在！");
+            return BaseResult.failure("该课程已存在，无需重复添加！");
         }
 
+        course.setCourseCategory(0);
         course.setCreateTime(LocalDateTime.now());
         boolean flag = courseService.save(course);
         return BaseResult.success(getCode(flag), getMsg(flag, "添加"), null);
     }
 
     /**
-     * @Description 删除课程信息
+     * @Description 添加选修课程
      * @author dhxstart
-     * @date 2021/6/16 17:23
-     * @param courseIds 课程编号数组
+     * @date 2021/6/26 9:42
+     * @param map map参数实体
      * @return com.guidian.teaching.common.lang.BaseResult
      */
-    @PostMapping("/delete")
-    public BaseResult deleteCourse(@RequestBody String[] courseIds) {
+    @PostMapping("/saveElective")
+    public BaseResult saveElectiveCourse(@Validated @RequestBody Map<String, String> map) {
+        String courseId = map.get("courseId");
+        String teacherId = map.get("teacherId");
+        String courseHours = map.get("courseHours");
+        Integer courseCredit = Integer.parseInt(map.get("courseCredit"));
+        String courseName = map.get("courseName");
+        String courseSection = map.get("courseSection");
+        String courseWhichDay = map.get("courseWhichDay");
+        String startTime = map.get("startTime");
+        String endTime = map.get("endTime");
+
+        Course courseObj = courseService.getById(courseId);
+        if (courseObj != null) {
+            return BaseResult.failure("该课程已存在，无需重复添加！");
+        }
+        Course course = new Course();
+        course.setCourseId(courseId);
+        course.setCourseName(courseName);
+        course.setCourseCredit(courseCredit);
+        course.setCourseHours(courseHours);
+        course.setCourseCategory(1);
+        // 解决日期格式解析错误问题
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        course.setStartTime(LocalDateTime.parse(startTime, dtf));
+        course.setEndTime(LocalDateTime.parse(endTime, dtf));
+        course.setCreateTime(LocalDateTime.now());
+        boolean courseFlag = courseService.save(course);
+
+        // 创建学生选课实例并设置数据
+        StudentCourse studentCourse = new StudentCourse();
+        studentCourse.setCourseId(courseId);
+        studentCourse.setTeacherId(teacherId);
+        studentCourse.setScore(null);
+        studentCourse.setCourseSection(courseSection);
+        studentCourse.setCourseWhichDay(courseWhichDay);
+        studentCourse.setCreateTime(LocalDateTime.now());
+        boolean studentCourseFlag = studentCourseService.save(studentCourse);
+
+        boolean flag = courseFlag && studentCourseFlag;
+        return BaseResult.success(getCode(flag), getMsg(flag, "添加"), null);
+    }
+
+    /**
+     * 此方法是管理员用于删除必修授课计划的课程
+     * @author dhxstart
+     * @date 2021/6/26 23:20
+     * @param courseIds 课程编号集合
+     * @return com.guidian.teaching.common.lang.BaseResult
+     */
+    @PostMapping("/deleteCompulsory")
+    public BaseResult deleteCompulsory(@RequestBody String[] courseIds) {
+        for (String courseId : courseIds) {
+            StudentCourse serviceOne = studentCourseService.getOne(
+                    new QueryWrapper<StudentCourse>().eq("course_id", courseId));
+            if (serviceOne != null) {
+                return BaseResult.failure("该课程已被选，操作失败！");
+            }
+        }
+        boolean flag = courseService.removeByIds(Arrays.asList(courseIds));
+        return BaseResult.success(getCode(flag), getMsg(flag, "删除"), null);
+    }
+
+    /**
+     * 此方法是管理员用于删除选课授课计划的课程
+     * @author dhxstart
+     * @date 2021/6/26 23:17
+     * @param courseIds 课程编号集合
+     * @return com.guidian.teaching.common.lang.BaseResult
+     */
+    @PostMapping("/deleteElective")
+    public BaseResult electiveDelete(@RequestBody String[] courseIds) {
+        List<StudentCourse> studentCourses = studentCourseService.isExistStudentNoNullAndCourseId(courseIds);
+        if (studentCourses != null){
+            BaseResult.failure("该课程已被选，操作失败！");
+        }
+
+        for (String courseId : courseIds) {
+            studentCourseService.remove(
+                    new QueryWrapper<StudentCourse>().eq("course_id", courseId));
+        }
         boolean flag = courseService.removeByIds(Arrays.asList(courseIds));
         return BaseResult.success(getCode(flag), getMsg(flag, "删除"), null);
     }
@@ -118,11 +199,12 @@ public class CourseController extends BaseController {
      * @date 2021/6/16 17:23
      * @return com.guidian.teaching.common.lang.BaseResult
      */
-    @GetMapping("/list")
-    public BaseResult getCourseAllPage(String courseName) {
+    @GetMapping("/list/{courseCategory}")
+    public BaseResult getCourseAllPage(@PathVariable(name = "courseCategory") String courseCategory, String courseName) {
         Page<Course> coursePage = courseService.page(
                 getPage(),
-                new QueryWrapper<Course>().like(StrUtil.isNotBlank(courseName), "course_name", courseName)
+                new QueryWrapper<Course>().eq("course_category", courseCategory)
+                        .like(StrUtil.isNotBlank(courseName), "course_name", courseName)
         );
         return BaseResult.success(coursePage);
     }

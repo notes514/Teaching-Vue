@@ -1,6 +1,7 @@
 package com.guidian.teaching.service.impl;
 
 import com.guidian.teaching.entity.Course;
+import com.guidian.teaching.entity.Elective;
 import com.guidian.teaching.mapper.CourseMapper;
 import com.guidian.teaching.service.CourseService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -43,5 +44,15 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     @Override
     public List<Course> getCurrentStudentNoCourses(List<String> courseIds) {
         return courseMapper.getCurrentStudentNoCourses(courseIds);
+    }
+
+    @Override
+    public List<Course> getCurrentStudentNoSelectCourses(List<String> courseIds) {
+        return courseMapper.getCurrentStudentNoSelectCourses(courseIds);
+    }
+
+    @Override
+    public List<Elective> getCurrentStudentNoSelectElectives(List<String> courseIds) {
+        return courseMapper.getCurrentStudentNoSelectElectives(courseIds);
     }
 }

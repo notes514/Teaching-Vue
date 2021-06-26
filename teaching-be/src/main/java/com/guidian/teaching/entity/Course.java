@@ -28,13 +28,6 @@ public class Course extends BaseEntity {
     private Integer courseCredit;
     /** 课程学时 */
     private String courseHours;
-    /** 表示该课程在第几节 */
-    private String courseSection;
-    /**
-     * 表示该课程在周几上课使用逗号分隔，
-     * 0,1,2,3,4,5,6分别表示周日、一、二、三、四、五、六
-     */
-    private String courseWhichDay;
     /** 课程类别（0表示必修，1表示选修） */
     private Integer courseCategory;
     /** 开课时间 */

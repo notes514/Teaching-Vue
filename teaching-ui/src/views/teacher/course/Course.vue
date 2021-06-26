@@ -5,15 +5,12 @@
         <el-input
             v-model="searchForm.name"
             placeholder="名称"
-            clearable
-        >
+            clearable>
         </el-input>
       </el-form-item>
-
       <el-form-item>
         <el-button @click="getCourseByUsernameInfo">搜索</el-button>
       </el-form-item>
-
       <el-form-item>
         <el-button type="primary" @click="addHandle">新增</el-button>
       </el-form-item>
@@ -41,7 +38,7 @@
       </el-table-column>
       <el-table-column
           prop="courseId"
-          label="课程编号"
+          label="课程代码"
           width="120">
       </el-table-column>
       <el-table-column
@@ -99,7 +96,6 @@
         </template>
       </el-table-column>
     </el-table>
-
     <!-- 分页 -->
     <el-pagination
         @size-change="handleSizeChange"
@@ -110,7 +106,6 @@
         :page-size="size"
         :total="total">
     </el-pagination>
-
     <!-- 新增对话框 -->
     <el-dialog
         title="提示"
@@ -137,7 +132,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="课程班级" prop="clbumId" label-width="120px">
+        <el-form-item label="班级名称" prop="clbumId" label-width="120px">
           <el-select v-model="teacherCourseForm.clbumId" :disabled="selectDisabled" placeholder="请选择班级">
             <el-option
                 v-for="item in courseClbumList"
@@ -147,8 +142,8 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="课程节数" prop="courseSection" label-width="120px">
-          <el-select v-model="teacherCourseForm.courseSection" placeholder="请选择节数">
+        <el-form-item label="上课时间" prop="courseSection" label-width="120px">
+          <el-select v-model="teacherCourseForm.courseSection" placeholder="请选择上课时间">
             <el-option
                 v-for="item in courseSections"
                 :key="item.value"
@@ -199,17 +194,19 @@ export default {
       tableData: [],
       // 教师编号
       teacherId: '',
+      // 管理员的课程信息
       teacherCourseList: [],
+      //
       teacherCourseForm: {},
       teacherCourseFormRules: {
-        courseId: [
+        courseName: [
           {required: true, message: '请输入学生课程名称', trigger: 'blur'}
         ],
         clbumId: [
           {required: true, message: '请选择班级', trigger: 'blur'}
         ],
         courseSection: [
-          {required: true, message: '请选择课程节数', trigger: 'blur'}
+          {required: true, message: '请选择上课时间', trigger: 'blur'}
         ],
         courseWhichDay: [
           {required: true, message: '请选择课程周天', trigger: 'blur'}
@@ -414,8 +411,6 @@ export default {
     /** 获取管理员添加的课程信息 */
     getAdministratorAddCourse() {
       this.$axios.get("/course/getAdministratorAddCourse").then(res => {
-        console.log("res.data.data")
-        console.log(res.data.data)
         this.teacherCourseList = res.data.data;
       });
     },

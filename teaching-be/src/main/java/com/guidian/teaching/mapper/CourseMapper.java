@@ -2,6 +2,7 @@ package com.guidian.teaching.mapper;
 
 import com.guidian.teaching.entity.Course;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.guidian.teaching.entity.Elective;
 import com.guidian.teaching.entity.StudentCourse;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -63,4 +64,22 @@ public interface CourseMapper extends BaseMapper<Course> {
      * @return java.util.List<com.guidian.teaching.entity.Course>
      */
     List<Course> getCurrentStudentNoCourses(@Param("courseIds") List<String> courseIds);
+
+    /**
+     * 根据当前学生获取未选修的选修课信息
+     * @author dhxstart
+     * @date 2021/6/26 17:40
+     * @param courseIds 课程编号集合
+     * @return java.util.List<com.guidian.teaching.entity.Course>
+     */
+    List<Course> getCurrentStudentNoSelectCourses(@Param("courseIds") List<String> courseIds);
+
+    /**
+     * 根据当前学生获取未选修的选修课信息
+     * @author dhxstart
+     * @date 2021/6/26 18:27
+     * @param courseIds 课程编号集合
+     * @return java.util.List<com.guidian.teaching.entity.Elective>
+     */
+    List<Elective> getCurrentStudentNoSelectElectives(@Param("courseIds") List<String> courseIds);
 }

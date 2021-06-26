@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @Description 老师表控制处理器
@@ -100,6 +101,19 @@ public class TeacherController extends BaseController {
         User user = userService.getByUsername(principal.getName());
         Teacher teacher = teacherService.getById(user.getUserId());
         return BaseResult.success(teacher);
+    }
+
+    /**
+     * @Description 根据学院编号获取教师集合
+     * @author dhxstart
+     * @date 2021/6/26 8:50
+     * @param academyId 学院编号
+     * @return com.guidian.teaching.common.lang.BaseResult
+     */
+    @GetMapping("/getAcademyIdByTeacherAll/{academyId}")
+    public BaseResult getAcademyIdByTeacherAll(@PathVariable(name = "academyId") String academyId) {
+        List<Teacher> teachers = teacherService.list(new QueryWrapper<Teacher>().eq("academy_id", academyId));
+        return BaseResult.success(teachers);
     }
 
     /**

@@ -73,4 +73,54 @@ public interface StudentCourseMapper extends BaseMapper<StudentCourse> {
      */
     @Select("SELECT * FROM `tb_student_course` WHERE `teacher_id` = #{teacherId} GROUP BY `teacher_id`;")
     List<StudentCourse> getStudentIdNotRepeating(@Param("teacherId") String teacherId);
+
+    /**
+     * 更新当前学生的课程成绩
+     * @author dhxstart
+     * @date 2021/6/25 11:06
+     * @param studentId 学生编号
+     * @param courseId 课程编号
+     * @param score 课程成绩
+     * @return boolean
+     */
+    boolean updateCurrentStudentCourseByScore(@Param("studentId") String studentId,
+                                              @Param("courseId") String courseId,
+                                              @Param("score") Integer score);
+
+    /**
+     * 获取学生选课表中学生编号为空的课程编号集合
+     * @author dhxstart
+     * @date 2021/6/26 11:32
+     * @return java.util.List<com.guidian.teaching.entity.StudentCourse>
+     */
+    List<StudentCourse> getStudentCourseByStudentIdIsNull();
+
+    /**
+     * 判断该学生是否已经选过选课表中的课程
+     * @author dhxstart
+     * @date 2021/6/26 11:31
+     * @param studentId 学生编号
+     * @param courseIds 课程编号
+     * @return boolean
+     */
+    boolean isStudentCourseElective(@Param("studentId") String studentId,
+                                    @Param("courseIds") List<String> courseIds);
+
+    /**
+     * 获取当期学生已选课程
+     * @author dhxstart
+     * @date 2021/6/26 17:35
+     * @param studentId 学生编号
+     * @return java.util.List<com.guidian.teaching.entity.StudentCourse>
+     */
+    List<StudentCourse> getCurrentStudentSelectedCourse(@Param("studentId") String studentId);
+
+    /**
+     * 获取选课表中多门课程是否已经被选
+     * @author dhxstart
+     * @date 2021/6/26 23:13
+     * @param courseIds 课程编号集合
+     * @return java.util.List<com.guidian.teaching.entity.StudentCourse>
+     */
+    List<StudentCourse> isExistStudentNoNullAndCourseId(@Param("courseIds") String[] courseIds);
 }

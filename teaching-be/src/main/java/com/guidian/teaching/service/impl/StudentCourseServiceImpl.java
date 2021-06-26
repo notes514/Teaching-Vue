@@ -46,4 +46,29 @@ public class StudentCourseServiceImpl extends ServiceImpl<StudentCourseMapper, S
     public List<StudentCourse> getStudentIdNotRepeating(String teacherId) {
         return studentCourseMapper.getStudentIdNotRepeating(teacherId);
     }
+
+    @Override
+    public boolean updateCurrentStudentCourseByScore(String studentId, String courseId, Integer score) {
+        return studentCourseMapper.updateCurrentStudentCourseByScore(studentId, courseId, score);
+    }
+
+    @Override
+    public List<StudentCourse> getStudentCourseByStudentIdIsNull() {
+        return studentCourseMapper.getStudentCourseByStudentIdIsNull();
+    }
+
+    @Override
+    public boolean isStudentCourseElective(String studentId, List<String> courseIds) {
+        return studentCourseMapper.isStudentCourseElective(studentId, courseIds);
+    }
+
+    @Override
+    public List<StudentCourse> getCurrentStudentSelectedCourse(String studentId) {
+        return studentCourseMapper.getCurrentStudentSelectedCourse(studentId);
+    }
+
+    @Override
+    public List<StudentCourse> isExistStudentNoNullAndCourseId(String[] courseIds) {
+        return studentCourseMapper.isExistStudentNoNullAndCourseId(courseIds);
+    }
 }

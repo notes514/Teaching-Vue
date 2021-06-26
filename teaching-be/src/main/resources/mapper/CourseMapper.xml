@@ -46,10 +46,43 @@
     <select id="getCurrentStudentNoCourses" resultType="com.guidian.teaching.entity.Course">
         SELECT * FROM tb_course
         <where>
+            course_id NOT IN
             <foreach collection="courseIds" item="courseId" open="(" separator="," close=")">
-                course_id NOT IN (#{courseId})
+                #{courseId}
             </foreach>
             AND `course_category` = 1;
+        </where>
+    </select>
+
+    <select id="getCurrentStudentNoSelectCourses" resultType="com.guidian.teaching.entity.Course">
+        SELECT * FROM tb_course
+        <where>
+            `course_id` NOT IN
+            <foreach collection="courseIds" item="courseId" open="(" separator="," close=")">
+                #{courseId}
+            </foreach>
+            AND course_category = '1';
+        </where>
+    </select>
+
+    <select id="getCurrentStudentNoSelectElectives" resultType="com.guidian.teaching.entity.Elective">
+        SELECT c.`course_name`, c.`course_id`, t.`teacher_id`, t.`teacher_name`, s.`student_id`, s.`course_which_day`,
+               s.`course_section`, c.`course_credit`, c.`course_hours`, c.`course_category`, c.`start_time`
+        FROM `tb_student_course` as s, `tb_course` as c, `tb_teacher` as t
+        <where>
+            s.`student_id` IS NULL
+            AND s.`course_id` = c.`course_id`
+            AND s.`teacher_id` = t.`teacher_id`
+            AND s.`course_id` IN (
+            SELECT `course_id` FROM `tb_course`
+            <where>
+                `course_category` = '1'
+                AND `course_id` NOT IN
+                <foreach collection="courseIds" item="courseId" open="(" separator="," close=")">
+                    #{courseId}
+                </foreach>
+            </where>
+            );
         </where>
     </select>
 </mapper>
